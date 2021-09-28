@@ -13,7 +13,7 @@ var express = require("express");
 var app = express();
 var server = app.listen(5000);
 const io = require("socket.io")(server);
-var GameLogic = require("./GameLogic");
+var GameLogic = require("./gameLogic");
 let logic = new GameLogic(io);
 
 io.on("connection", (socket) => {
