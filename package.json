@@ -5,7 +5,9 @@
   "main": "server.js",
   "scripts": {
     "devstart": "nodemon server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "eslint": "eslint '**/*.js' --fix",
+    "prettier": "prettier --write '**/*.js'"
   },
   "keywords": [],
   "author": "Wesley Miller",
@@ -17,6 +19,8 @@
     "socket.io": "^3.1.2"
   },
   "devDependencies": {
-    "nodemon": "^2.0.13"
+    "eslint": "^8.0.0",
+    "nodemon": "^2.0.13",
+    "prettier": "^2.4.1"
   }
 }
