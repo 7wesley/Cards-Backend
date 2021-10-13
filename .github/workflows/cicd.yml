@@ -19,7 +19,12 @@ jobs:
           node-version: "16"
           cache: "npm"
       - run: npm ci
-      - run: npm test
+      - run: npm run test:coverage
+      - uses: codecov/codecov-action@v2
+        with:
+          flags: unittests
+          name: cards-backend-unit
+          fail_ci_if_error: true
 
   docker-publish:
     runs-on: ubuntu-latest

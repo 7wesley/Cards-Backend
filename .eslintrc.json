@@ -5,7 +5,7 @@
         "es2021": true
     },
     "extends": "eslint:recommended",
-    "ignorePatterns": [ "**/*.json" ],
+    "ignorePatterns": [ "**/*.json", "**/*.spec.js" ],
     "rules": {
     }
 }
