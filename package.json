@@ -7,7 +7,9 @@
     "devstart": "nodemon server.js",
     "start": "node server.js",
     "eslint": "eslint '**/*.js' --fix",
-    "prettier": "prettier --write '**/*.js'"
+    "prettier": "prettier --write '**/*.js'",
+    "test": "jest",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [],
   "author": "Wesley Miller",
@@ -19,7 +21,10 @@
     "socket.io": "^3.1.2"
   },
   "devDependencies": {
+    "@types/jest": "^27.0.2",
     "eslint": "^8.0.0",
+    "jest": "^27.2.5",
+    "lodash.clonedeep": "^4.5.0",
     "nodemon": "^2.0.13",
     "prettier": "^2.4.1"
   }
