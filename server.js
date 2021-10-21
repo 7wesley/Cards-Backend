@@ -76,7 +76,7 @@ io.on("connection", (socket) => {
     io.sockets.adapter.rooms.get(room).board = board;
     io.sockets.adapter.rooms.get(room).timerEnd = false;
     let iterations = board.getTurns();
-
+    
     var dealCards = setInterval(() => {
       try {
         board.initialDeal();
@@ -128,6 +128,11 @@ io.on("connection", (socket) => {
     while (board.inProgress()) {
       try {
         player = board.nextTurn();
+
+        // console.log("server: its :"+player.id+"'s turn")
+        // console.log("board.isPlaying(player.id): " + board.isPlaying(player.id))
+        // console.log("board.isTurn(player.id): " + board.isTurn(player.id))
+        
         //while the player is still in the game and its their turn
         while (board.isPlaying(player.id) && board.isTurn(player.id)) {
           io.to(room).emit("curr-turn", player.id);
@@ -215,6 +220,8 @@ io.on("connection", (socket) => {
     switch (currSocket.game) {
       case "Blackjack":
         await logic.blackjack(currSocket, board);
+      case "War":
+        await logic.war(currSocket, board);
     }
   };
 
@@ -227,6 +234,8 @@ io.on("connection", (socket) => {
     switch (socket.game) {
       case "Blackjack":
         return "Draw again for 21?";
+      case "War":
+        return "This is Warrr!"
     }
   };
 

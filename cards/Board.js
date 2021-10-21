@@ -8,6 +8,8 @@
 var Deck = require("./Deck");
 var Player = require("./Player");
 var Blackjack = require("./Blackjack");
+var War = require("./War");
+
 
 module.exports = class Board {
   constructor(game, players) {
@@ -27,6 +29,10 @@ module.exports = class Board {
   startGame() {
     if (this.game === "Blackjack") {
       this.game = new Blackjack(this.deck);
+    }
+
+    else if (this.game === "War") {
+      this.game = new War(this.deck);
     }
   }
 
@@ -88,7 +94,13 @@ module.exports = class Board {
    */
   isPlaying(uid) {
     let player = this.players.find((player) => player.id === uid);
-    return player && player.getStatus() === "playing";
+    if(this.game.gameType == "Blackjack") {
+      return player && player.getStatus() === "playing";
+    } 
+
+    else if (this.game.gameType == "War") {
+      return player && player.getStatus() === "playing"
+    }
   }
 
   /**
@@ -97,10 +109,23 @@ module.exports = class Board {
    * otherwise false
    */
   inProgress() {
-    let playing = this.players.filter(
-      (player) => player.getStatus() === "playing"
-    );
-    return playing.length !== 0;
+
+    let playing = null
+    if(this.game.gameType == "Blackjack") {
+      playing = this.players.filter(
+        (player) => player.getStatus() === "playing"
+      );
+      return playing.length !== 0;
+    }
+
+    //TODO Not sure if works yet...
+    else if (this.game.gameType == "War") {
+      playing = this.players.filter(
+        (player) => player.playerInGame === true
+      )
+      return playing.length !== 1
+    }
+
   }
 
   /**

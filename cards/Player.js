@@ -10,6 +10,8 @@ module.exports = class Player {
     this.cards = [];
     this.total = 0;
     this.status = "playing";
+    this.lastCardFlipped = null;
+    this.ifMadeMove = false;
   }
 
   /**
@@ -59,5 +61,39 @@ module.exports = class Player {
    */
   get allCards() {
     return this.cards;
+  }
+
+  /**
+   * Takes off the card from the top of the user's deck
+   */
+  flipCard() {
+      let cardFlipped = this.cards.pop();
+      this.total -= cardFlipped.value;
+      this.lastCardFlipped = cardFlipped;
+      return cardFlipped;
+  }
+
+  /**
+   * Finds the card the player flipped over for a round
+   * @returns the card that the player most recently flipped
+   */
+  getLastCardFlipped() {
+    return this.lastCardFlipped
+  }
+
+  /**
+   * Returns if the player made a move yet or not
+   * @returns true if the player made a move, false otherwise
+   */
+  getIfMadeMove() {
+    return this.ifMadeMove
+  }
+
+  /**
+   * Returns if the player made a move yet or not
+   * @returns true if the player made a move, false otherwise
+   */
+  setIfMadeMove(ifMadeMove) {
+    this.ifMadeMove = ifMadeMove;
   }
 };

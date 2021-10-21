@@ -7,6 +7,7 @@
 
 module.exports = class Blackjack {
   constructor(deck) {
+    this.gameType = "Blackjack";
     this.deck = deck;
     this.playerIndex = 0;
     this.dealTurns = 2;
