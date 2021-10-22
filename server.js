@@ -142,7 +142,7 @@ io.on("connection", (socket) => {
         //while the player is still in the game and its their turn
         while (board.isPlaying(player.id) && board.isTurn(player.id)) {
 
-          console.log("\n\nserver: "+player.id+"'s turn")
+          // console.log("\n\nserver: "+player.id+"'s turn")
 
           io.to(room).emit("curr-turn", player.id);
           io.to(match[player.id]).emit("your-turn", getPrompt());

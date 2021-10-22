@@ -133,7 +133,7 @@ module.exports = class Board {
    * @returns true if all plays have moved this turn, false otherwise
    */
   ifAllPlayersMoved() {
-    console.log("Board: ifAllPlayersMoved()")
+    // console.log("Board: ifAllPlayersMoved()")
     let allPlayersMadeMove = true;
     for(let i = 0; i < this.players.length; i++) {
 
@@ -152,8 +152,8 @@ module.exports = class Board {
    * @returns the player that won the round
    */
   getWinnerOfRound() {
-    console.log("Board: getWinnerOfROund")
-    console.log("Board: this.game.findWinnerOfRound(this.players) = " + this.game.findWinnerOfRound(this.players).id)
+    // console.log("Board: getWinnerOfROund")
+    // console.log("Board: this.game.findWinnerOfRound(this.players) = " + this.game.findWinnerOfRound(this.players).id)
     return this.game.findWinnerOfRound(this.players)
   }
 

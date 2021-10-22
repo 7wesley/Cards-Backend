@@ -44,16 +44,18 @@ module.exports = class GameLogic {
         await this.alert(socket, `${socket.uid} Flipped over a 
           ${board.getPlayer(socket.uid).getLastCardFlipped().rank} of 
           ${board.getPlayer(socket.uid).getLastCardFlipped().suit}`);
+
+        //If all players have gone, then display the winner of the round
         if(board.ifAllPlayersMoved()) {
-          console.log("gameLogic: about to call message")
+          // console.log("gameLogic: about to call message")
           let winner = board.getWinnerOfRound()
           await this.alert(socket, `${winner.getId()} Won the Round with the card
             ${winner.getLastCardFlipped().rank} of 
             ${winner.getLastCardFlipped().suit}`);
-          console.log(`${winner.getId()} Won the Round with the card
-            ${winner.getLastCardFlipped().rank} of 
-            ${winner.getLastCardFlipped().suit}`)
-          console.log("gameLogic: after message")
+          // console.log(`${winner.getId()} Won the Round with the card
+          //   ${winner.getLastCardFlipped().rank} of 
+          //   ${winner.getLastCardFlipped().suit}`)
+          // console.log("gameLogic: after message")
         }
         // await this.alert(socket, `${socket.uid} wins the round`);
       } 

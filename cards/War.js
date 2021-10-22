@@ -49,32 +49,8 @@ module.exports = class War {
             this.turn = players[0];
             this.turnIndex = 0;
         }
-        
-        // console.log("War: nextturn()")
-        // let playerList = this.players.find((player) => player.id === uid);
-        // playing = this.players.filter(
-        //     (player) => player.getIfMadeMove() === true
-        // );
-        // console.log("War: playing.length = "+playing.length)
-        // console.log("War: playerList = "+playerList)
 
-        // allPlayersMadeMove = playing.length == 2;
-        // console.log("War: allPlayersMadeMove = "+allPlayersMadeMove)
-        
-        // console.log("War: before ifAllPlayersMoved()")
-
-
-
-
-
-        // if(this.ifAllPlayersMoved(players)) {
-        //     console.log("War: found all players made a move")
-        //     console.log("War: players = "+players)
-        //     // console.log("War: "+this.findWinnerOfRound(players))
-        //     this.findWinnerOfRound(players)
-        // }
-        
-        //TODO right spot???
+        //Set this player's turn as finished      
         this.turn.setIfMadeMove(true)
         this.turn.setStatus("playing")
         
@@ -88,14 +64,14 @@ module.exports = class War {
      * @returns the winner of the round
      */
      findWinnerOfRound(players) {
-        console.log("War: findWinnerOfRound")
+        // console.log("War: findWinnerOfRound")
         let winnerOfRound = null;
         winnerOfRound = this.findHighestCardPlayer(players)
-        console.log("War: winnerOfRound = "+winnerOfRound.id)
+        // console.log("War: winnerOfRound = "+winnerOfRound.id)
 
         this.resetPlayerHasMoved(players)
-        console.log("War: Reset all player moves")
-        console.log("War: returning whom is the winner of the round:  " + winnerOfRound.id)
+        // console.log("War: Reset all player moves")
+        // console.log("War: returning whom is the winner of the round:  " + winnerOfRound.id)
         return winnerOfRound;
     }
 
@@ -105,7 +81,7 @@ module.exports = class War {
      * @returns true if all plays have moved this turn, false otherwise
      */
     ifAllPlayersMoved(players) {
-        console.log("War: ifAllPlayersMoved()")
+        // console.log("War: ifAllPlayersMoved()")
         let allPlayersMadeMove = true;
         for(let i = 0; i < players.length; i++) {
 
@@ -135,7 +111,7 @@ module.exports = class War {
      */
     flipCard() {
         const card = this.turn.flipCard()
-        console.log("War: last card flipped: "+card.actualValue)
+        // console.log("War: last card flipped: "+card.actualValue)
         // this.turn.setStatus("standing")
         this.turn.setStatus("madeMove")
     }
@@ -177,17 +153,17 @@ module.exports = class War {
             }
             else {
 
-                console.log("Comparing highestCardPlayer.getLastCardFlipped().value = " + highestCardPlayer.getLastCardFlipped().actualValue)
-                console.log("With players[i].getLastCardFlipped().value = " + players[i].getLastCardFlipped().actualValue)
+                // console.log("Comparing highestCardPlayer.getLastCardFlipped().value = " + highestCardPlayer.getLastCardFlipped().actualValue)
+                // console.log("With players[i].getLastCardFlipped().value = " + players[i].getLastCardFlipped().actualValue)
                 //Finds if the next player has the highest card
                 if(highestCardPlayer.getLastCardFlipped().actualValue < 
                     players[i].getLastCardFlipped().actualValue) {
-                        console.log("Set the highest card to the other player's = " + players[i].getLastCardFlipped().actualValue)
+                        // console.log("Set the highest card to the other player's = " + players[i].getLastCardFlipped().actualValue)
                         highestCardPlayer = players[i]
                 } 
             }
         }
-        console.log("The highest card is: "+highestCardPlayer.id+" with card value of "+highestCardPlayer.getLastCardFlipped().actualValue)
+        // console.log("The highest card is: "+highestCardPlayer.id+" with card value of "+highestCardPlayer.getLastCardFlipped().actualValue)
         return highestCardPlayer;
     }
   
