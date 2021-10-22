@@ -129,6 +129,35 @@ module.exports = class Board {
   }
 
   /**
+   * Finds if all the players of this game have made a move
+   * @returns true if all plays have moved this turn, false otherwise
+   */
+  ifAllPlayersMoved() {
+    console.log("Board: ifAllPlayersMoved()")
+    let allPlayersMadeMove = true;
+    for(let i = 0; i < this.players.length; i++) {
+
+        // console.log("War: players[i].id: "+players[i].id)
+        // console.log("War: players[i].getIfMadeMove(): "+players[i].getIfMadeMove())
+
+        if(this.players[i].getIfMadeMove() == false) {
+            allPlayersMadeMove = false;
+        }
+    }
+    return allPlayersMadeMove;
+  }
+
+  /**
+   * Gets the winner of a War match
+   * @returns the player that won the round
+   */
+  getWinnerOfRound() {
+    console.log("Board: getWinnerOfROund")
+    console.log("Board: this.game.findWinnerOfRound(this.players) = " + this.game.findWinnerOfRound(this.players).id)
+    return this.game.findWinnerOfRound(this.players)
+  }
+
+  /**
    * Gets a specific player from the players field
    * @param {*} uid - The player being searched for
    * @returns - A player from the players field
@@ -151,5 +180,13 @@ module.exports = class Board {
    */
   getWinners() {
     return this.game.findWinners(this.players);
+  }
+
+  /**
+   * Returns the game type that is currently being played
+   * @returns the type of game that is being played
+   */
+  getGameType() {
+    return this.game.gameType
   }
 };

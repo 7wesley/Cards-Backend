@@ -12,7 +12,6 @@ module.exports = class War {
         this.playerIndex = 0;
         this.dealTurns = 2;
         this.turnIndex = 0;
-        this.LastCardFlipped = ""
     }
   
     /**
@@ -64,15 +63,20 @@ module.exports = class War {
         
         // console.log("War: before ifAllPlayersMoved()")
 
-        if(this.ifAllPlayersMoved(players)) {
-            console.log("War: found all players made a move")
-            console.log("War: players = "+players)
-            // console.log("War: "+this.findWinnerOfRound(players))
-            this.findWinnerOfRound(players)
-        }
+
+
+
+
+        // if(this.ifAllPlayersMoved(players)) {
+        //     console.log("War: found all players made a move")
+        //     console.log("War: players = "+players)
+        //     // console.log("War: "+this.findWinnerOfRound(players))
+        //     this.findWinnerOfRound(players)
+        // }
         
         //TODO right spot???
         this.turn.setIfMadeMove(true)
+        this.turn.setStatus("playing")
         
         return this.turn;
     }
@@ -81,20 +85,18 @@ module.exports = class War {
     /**
      * Finds the winner of a round of War
      * @param {any} players the players for this game
+     * @returns the winner of the round
      */
      findWinnerOfRound(players) {
         console.log("War: findWinnerOfRound")
         let winnerOfRound = null;
-        console.log("War: WinnerOfRound = "+winnerOfRound)
-        console.log("War: findHighestCardPlayer(players) = "+this.findHighestCardPlayer(players))
         winnerOfRound = this.findHighestCardPlayer(players)
         console.log("War: winnerOfRound = "+winnerOfRound.id)
+
         this.resetPlayerHasMoved(players)
         console.log("War: Reset all player moves")
-        
-        
-        //TODO break from while loop in server.js
-        
+        console.log("War: returning whom is the winner of the round:  " + winnerOfRound.id)
+        return winnerOfRound;
     }
 
     /**
@@ -124,7 +126,6 @@ module.exports = class War {
     resetPlayerHasMoved(players) {
         for(let i = 0; i < players.length; i++) {
             players[i].setIfMadeMove(false)
-            players[i].setStatus("playing")
         }
     }
   
@@ -134,6 +135,7 @@ module.exports = class War {
      */
     flipCard() {
         const card = this.turn.flipCard()
+        console.log("War: last card flipped: "+card.actualValue)
         // this.turn.setStatus("standing")
         this.turn.setStatus("madeMove")
     }
@@ -175,13 +177,17 @@ module.exports = class War {
             }
             else {
 
+                console.log("Comparing highestCardPlayer.getLastCardFlipped().value = " + highestCardPlayer.getLastCardFlipped().actualValue)
+                console.log("With players[i].getLastCardFlipped().value = " + players[i].getLastCardFlipped().actualValue)
                 //Finds if the next player has the highest card
-                if(highestCardPlayer.getLastCardFlipped().value > 
-                    players[i].getLastCardFlipped().value) {
+                if(highestCardPlayer.getLastCardFlipped().actualValue < 
+                    players[i].getLastCardFlipped().actualValue) {
+                        console.log("Set the highest card to the other player's = " + players[i].getLastCardFlipped().actualValue)
                         highestCardPlayer = players[i]
                 } 
             }
         }
+        console.log("The highest card is: "+highestCardPlayer.id+" with card value of "+highestCardPlayer.getLastCardFlipped().actualValue)
         return highestCardPlayer;
     }
   

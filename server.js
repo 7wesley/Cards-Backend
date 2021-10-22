@@ -76,7 +76,13 @@ io.on("connection", (socket) => {
     io.sockets.adapter.rooms.get(room).board = board;
     io.sockets.adapter.rooms.get(room).timerEnd = false;
     let iterations = board.getTurns();
-    
+
+    // console.log("this.board = " + board)
+    // console.log("this.board.game = " + board.game)
+    // console.log("this.board.game.gameType = " + board.game.gameType)
+    // console.log("this.board.game.gameType = " + board.getGameType())
+
+
     var dealCards = setInterval(() => {
       try {
         board.initialDeal();
@@ -89,7 +95,7 @@ io.on("connection", (socket) => {
         clearInterval(dealCards);
         turns(room);
       }
-    }, 700);
+    }, board.getGameType() == "War" ? 100 : 700 );
   };
 
   /**
@@ -135,6 +141,9 @@ io.on("connection", (socket) => {
         
         //while the player is still in the game and its their turn
         while (board.isPlaying(player.id) && board.isTurn(player.id)) {
+
+          console.log("\n\nserver: "+player.id+"'s turn")
+
           io.to(room).emit("curr-turn", player.id);
           io.to(match[player.id]).emit("your-turn", getPrompt());
           await turnTimer(room, board);
