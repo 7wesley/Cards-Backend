@@ -8,6 +8,7 @@ module.exports = class Player {
   constructor(id) {
     this.id = id;
     this.cards = [];
+    this.backupCards = [];
     this.total = 0;
     this.status = "playing";
     this.lastCardFlipped = null;
@@ -21,6 +22,24 @@ module.exports = class Player {
   setCards(card) {
     this.cards.push(card);
     this.total += card.value;
+  }
+
+  /**
+   * Adds cards to the player's backup/win pile
+   * @param {*} card the card to add to the backup
+   */
+  setBackupCards(card) {
+    this.backupCards.push(card)
+  }
+
+  /**
+   * Combines the deck in hand with the win/backup pile and shuffles
+   */
+  combineAndShuffleAllCards() {
+    while(this.backupCards.length > 0) {
+      this.setCards(this.backupCards.pop())
+    }
+    this.cards = this.cards.sort(() => Math.random() - 0.5)
   }
 
   /**
@@ -68,7 +87,9 @@ module.exports = class Player {
    */
   flipCard() {
       let cardFlipped = this.cards.pop();
-      this.total -= cardFlipped.value;
+      if(cardFlipped != null) {
+        this.total -= cardFlipped.value;
+      }
       this.lastCardFlipped = cardFlipped;
       return cardFlipped;
   }
@@ -95,5 +116,16 @@ module.exports = class Player {
    */
   setIfMadeMove(ifMadeMove) {
     this.ifMadeMove = ifMadeMove;
+  }
+
+  /**
+   * Finds if this player has any cards left
+   * @returns true if the player has cards left, false otherwise
+   */
+  hasCardsLeft() {
+    if(this.cards.length == 0 && this.backupCards.length == 0) {
+      return false
+    }
+    return true
   }
 };

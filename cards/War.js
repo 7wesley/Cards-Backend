@@ -72,6 +72,7 @@ module.exports = class War {
         this.resetPlayerHasMoved(players)
         // console.log("War: Reset all player moves")
         // console.log("War: returning whom is the winner of the round:  " + winnerOfRound.id)
+
         return winnerOfRound;
     }
 
@@ -111,8 +112,7 @@ module.exports = class War {
      */
     flipCard() {
         const card = this.turn.flipCard()
-        // console.log("War: last card flipped: "+card.actualValue)
-        // this.turn.setStatus("standing")
+        console.log("War: last card flipped: "+card.actualValue)
         this.turn.setStatus("madeMove")
     }
   
@@ -123,9 +123,15 @@ module.exports = class War {
      * their move.
      */
     makeMove(choice) {
+ 
+        //If the user has no cards left, gameover for them
+        if(!this.turn.hasCardsLeft()) {
+            console.log("No Cards left for "+this.turn.id)
+            this.turn.setStatus("noCards")
+        }
 
         //If the user decides to flip a card
-        if (choice === "draw") {
+        else if (choice === "draw") {
             // console.log("Its : "+this.turn.id+"'s turn")
             this.flipCard()
         }
@@ -152,7 +158,6 @@ module.exports = class War {
                 highestCardPlayer = players[i]
             }
             else {
-
                 // console.log("Comparing highestCardPlayer.getLastCardFlipped().value = " + highestCardPlayer.getLastCardFlipped().actualValue)
                 // console.log("With players[i].getLastCardFlipped().value = " + players[i].getLastCardFlipped().actualValue)
                 //Finds if the next player has the highest card
@@ -164,9 +169,42 @@ module.exports = class War {
             }
         }
         // console.log("The highest card is: "+highestCardPlayer.id+" with card value of "+highestCardPlayer.getLastCardFlipped().actualValue)
+
+        this.addCardsToWinningPlayer(players, highestCardPlayer);
+
+        //If any player is out of cards, replace them with backup if they have any
+        this.ifOutOfCards(players);
+
         return highestCardPlayer;
     }
+
+
+    /**
+     * Reshuffles all of a player's cards if they are out of cards in their hand
+     * @param {*} players the players to check if they are out of cards
+     */
+    ifOutOfCards(players) {
+        for(let i = 0; i < players.length; i++) {
+            if(players[i].cards.length == 0) {
+                players[i].combineAndShuffleAllCards()
+            }
+        }
+    }
+
+
+    /**
+     * Adds the round's cards to the deck of the player that won the round
+     * @param {*} players the players of this War game
+     * @param {*} highestCardPlayer the player that won the round
+     */
+    addCardsToWinningPlayer(players, highestCardPlayer) {
+        for(let i = 0; i < players.length; i++) {
+            // console.log("War: adding "+players[i].getLastCardFlipped().rank+" to the winner")
+            highestCardPlayer.setBackupCards(players[i].getLastCardFlipped())
+        }
+    }
   
+
     /**
      * Returns the number of turns needed for the initial
      * deal.
@@ -174,7 +212,7 @@ module.exports = class War {
      * @returns - The number of turns needed for the initial deal.
      */
     getTurns(playerSize) {
-      return 52/playerSize;
+      return 4;
     }
   
     /**

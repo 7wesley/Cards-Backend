@@ -111,6 +111,7 @@ module.exports = class Board {
   inProgress() {
 
     let playing = null
+
     if(this.game.gameType == "Blackjack") {
       playing = this.players.filter(
         (player) => player.getStatus() === "playing"
@@ -118,12 +119,13 @@ module.exports = class Board {
       return playing.length !== 0;
     }
 
-    //TODO Not sure if works yet...
     else if (this.game.gameType == "War") {
-      playing = this.players.filter(
-        (player) => player.playerInGame === true
+      let playersLost = this.players.filter(
+        (player) => player.getStatus() === "noCards"
       )
-      return playing.length !== 1
+
+      //If there is only 1 player with cards, then the game is not in progress
+      return !(playersLost.length + 1 == this.players.length)
     }
 
   }

@@ -47,17 +47,14 @@ module.exports = class GameLogic {
 
         //If all players have gone, then display the winner of the round
         if(board.ifAllPlayersMoved()) {
-          // console.log("gameLogic: about to call message")
           let winner = board.getWinnerOfRound()
           await this.alert(socket, `${winner.getId()} Won the Round with the card
             ${winner.getLastCardFlipped().rank} of 
             ${winner.getLastCardFlipped().suit}`);
-          // console.log(`${winner.getId()} Won the Round with the card
-          //   ${winner.getLastCardFlipped().rank} of 
-          //   ${winner.getLastCardFlipped().suit}`)
-          // console.log("gameLogic: after message")
         }
         // await this.alert(socket, `${socket.uid} wins the round`);
+      } else if (board.getPlayer(socket.uid).getStatus() === "noCards") {
+        await this.removePlayer(socket, board, `${socket.uid} is out of cards!`);
       } 
       this.io.to(socket.room).emit("update-hands", board.getPlayers());
     }
