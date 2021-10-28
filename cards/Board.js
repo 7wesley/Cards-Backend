@@ -91,11 +91,13 @@ module.exports = class Board {
    */
   isPlaying(uid) {
     let player = this.players.find((player) => player.id === uid);
-    if (this.game.gameType == "Blackjack") {
-      return player && player.getStatus() === "playing";
-    } else if (this.game.gameType == "War") {
-      return player && player.getStatus() === "playing";
-    }
+    return player && player.getStatus() === "playing";
+
+    // if (this.game.gameType == "Blackjack") {
+    //   return player && player.getStatus() === "playing";
+    // } else if (this.game.gameType == "War") {
+    //   return player && player.getStatus() === "playing";
+    // }
   }
 
   /**
