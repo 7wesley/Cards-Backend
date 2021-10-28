@@ -131,9 +131,7 @@ module.exports = class War {
     else if (choice === "draw") {
       // console.log("Its : "+this.turn.id+"'s turn")
       this.flipCard();
-    }
-    // else this.turn.setStatus("standing");
-    else this.turn.setStatus("MadeMove");
+    } else this.turn.setStatus("MadeMove");
   }
 
   /**
