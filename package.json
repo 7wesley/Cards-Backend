@@ -6,8 +6,8 @@
   "scripts": {
     "devstart": "nodemon server.js",
     "start": "node server.js",
-    "eslint": "eslint '**/*.js' --fix",
-    "prettier": "prettier --write '**/*.js'",
+    "eslint": "eslint \"**/*.js\" --fix",
+    "prettier": "prettier --write \"**/*.js\"",
     "test": "jest",
     "test:coverage": "jest --coverage"
   },

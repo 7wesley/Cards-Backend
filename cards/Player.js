@@ -29,17 +29,17 @@ module.exports = class Player {
    * @param {*} card the card to add to the backup
    */
   setBackupCards(card) {
-    this.backupCards.push(card)
+    this.backupCards.push(card);
   }
 
   /**
    * Combines the deck in hand with the win/backup pile and shuffles
    */
   combineAndShuffleAllCards() {
-    while(this.backupCards.length > 0) {
-      this.setCards(this.backupCards.pop())
+    while (this.backupCards.length > 0) {
+      this.setCards(this.backupCards.pop());
     }
-    this.cards = this.cards.sort(() => Math.random() - 0.5)
+    this.cards = this.cards.sort(() => Math.random() - 0.5);
   }
 
   /**
@@ -84,14 +84,15 @@ module.exports = class Player {
 
   /**
    * Takes off the card from the top of the user's deck
+   * @returns the card that was on top of the user's deck
    */
   flipCard() {
-      let cardFlipped = this.cards.pop();
-      if(cardFlipped != null) {
-        this.total -= cardFlipped.value;
-      }
-      this.lastCardFlipped = cardFlipped;
-      return cardFlipped;
+    let cardFlipped = this.cards.pop();
+    if (cardFlipped != null) {
+      this.total -= cardFlipped.value;
+    }
+    this.lastCardFlipped = cardFlipped;
+    return cardFlipped;
   }
 
   /**
@@ -99,7 +100,7 @@ module.exports = class Player {
    * @returns the card that the player most recently flipped
    */
   getLastCardFlipped() {
-    return this.lastCardFlipped
+    return this.lastCardFlipped;
   }
 
   /**
@@ -107,12 +108,12 @@ module.exports = class Player {
    * @returns true if the player made a move, false otherwise
    */
   getIfMadeMove() {
-    return this.ifMadeMove
+    return this.ifMadeMove;
   }
 
   /**
-   * Returns if the player made a move yet or not
-   * @returns true if the player made a move, false otherwise
+   * Changes the status of if the player made a move
+   * @param {any} ifMadeMove if the player made a move
    */
   setIfMadeMove(ifMadeMove) {
     this.ifMadeMove = ifMadeMove;
@@ -123,9 +124,9 @@ module.exports = class Player {
    * @returns true if the player has cards left, false otherwise
    */
   hasCardsLeft() {
-    if(this.cards.length == 0 && this.backupCards.length == 0) {
-      return false
+    if (this.cards.length == 0 && this.backupCards.length == 0) {
+      return false;
     }
-    return true
+    return true;
   }
 };

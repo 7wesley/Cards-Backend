@@ -82,20 +82,22 @@ io.on("connection", (socket) => {
     // console.log("this.board.game.gameType = " + board.game.gameType)
     // console.log("this.board.game.gameType = " + board.getGameType())
 
-
-    var dealCards = setInterval(() => {
-      try {
-        board.initialDeal();
-      } catch {
-        console.log("Player left during initial setup");
-      }
-      io.to(room).emit("update-hands", board.getPlayers());
-      iterations--;
-      if (iterations == 0) {
-        clearInterval(dealCards);
-        turns(room);
-      }
-    }, board.getGameType() == "War" ? 100 : 700 );
+    var dealCards = setInterval(
+      () => {
+        try {
+          board.initialDeal();
+        } catch {
+          console.log("Player left during initial setup");
+        }
+        io.to(room).emit("update-hands", board.getPlayers());
+        iterations--;
+        if (iterations == 0) {
+          clearInterval(dealCards);
+          turns(room);
+        }
+      },
+      board.getGameType() == "War" ? 100 : 700
+    );
   };
 
   /**
@@ -138,10 +140,9 @@ io.on("connection", (socket) => {
         // console.log("server: its :"+player.id+"'s turn")
         // console.log("board.isPlaying(player.id): " + board.isPlaying(player.id))
         // console.log("board.isTurn(player.id): " + board.isTurn(player.id))
-        
+
         //while the player is still in the game and its their turn
         while (board.isPlaying(player.id) && board.isTurn(player.id)) {
-
           // console.log("\n\nserver: "+player.id+"'s turn")
 
           io.to(room).emit("curr-turn", player.id);
@@ -229,8 +230,10 @@ io.on("connection", (socket) => {
     switch (currSocket.game) {
       case "Blackjack":
         await logic.blackjack(currSocket, board);
+        break;
       case "War":
         await logic.war(currSocket, board);
+        break;
     }
   };
 
@@ -244,7 +247,7 @@ io.on("connection", (socket) => {
       case "Blackjack":
         return "Draw again for 21?";
       case "War":
-        return "This is Warrr!"
+        return "This is Warrr!";
     }
   };
 

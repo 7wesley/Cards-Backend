@@ -10,7 +10,6 @@ var Player = require("./Player");
 var Blackjack = require("./Blackjack");
 var War = require("./War");
 
-
 module.exports = class Board {
   constructor(game, players) {
     this.deck = new Deck();
@@ -29,9 +28,7 @@ module.exports = class Board {
   startGame() {
     if (this.game === "Blackjack") {
       this.game = new Blackjack(this.deck);
-    }
-
-    else if (this.game === "War") {
+    } else if (this.game === "War") {
       this.game = new War(this.deck);
     }
   }
@@ -94,12 +91,10 @@ module.exports = class Board {
    */
   isPlaying(uid) {
     let player = this.players.find((player) => player.id === uid);
-    if(this.game.gameType == "Blackjack") {
+    if (this.game.gameType == "Blackjack") {
       return player && player.getStatus() === "playing";
-    } 
-
-    else if (this.game.gameType == "War") {
-      return player && player.getStatus() === "playing"
+    } else if (this.game.gameType == "War") {
+      return player && player.getStatus() === "playing";
     }
   }
 
@@ -109,25 +104,21 @@ module.exports = class Board {
    * otherwise false
    */
   inProgress() {
+    let playing = null;
 
-    let playing = null
-
-    if(this.game.gameType == "Blackjack") {
+    if (this.game.gameType == "Blackjack") {
       playing = this.players.filter(
         (player) => player.getStatus() === "playing"
       );
       return playing.length !== 0;
-    }
-
-    else if (this.game.gameType == "War") {
+    } else if (this.game.gameType == "War") {
       let playersLost = this.players.filter(
         (player) => player.getStatus() === "noCards"
-      )
+      );
 
       //If there is only 1 player with cards, then the game is not in progress
-      return !(playersLost.length + 1 == this.players.length)
+      return !(playersLost.length + 1 == this.players.length);
     }
-
   }
 
   /**
@@ -137,14 +128,13 @@ module.exports = class Board {
   ifAllPlayersMoved() {
     // console.log("Board: ifAllPlayersMoved()")
     let allPlayersMadeMove = true;
-    for(let i = 0; i < this.players.length; i++) {
+    for (let i = 0; i < this.players.length; i++) {
+      // console.log("War: players[i].id: "+players[i].id)
+      // console.log("War: players[i].getIfMadeMove(): "+players[i].getIfMadeMove())
 
-        // console.log("War: players[i].id: "+players[i].id)
-        // console.log("War: players[i].getIfMadeMove(): "+players[i].getIfMadeMove())
-
-        if(this.players[i].getIfMadeMove() == false) {
-            allPlayersMadeMove = false;
-        }
+      if (this.players[i].getIfMadeMove() == false) {
+        allPlayersMadeMove = false;
+      }
     }
     return allPlayersMadeMove;
   }
@@ -156,7 +146,7 @@ module.exports = class Board {
   getWinnerOfRound() {
     // console.log("Board: getWinnerOfROund")
     // console.log("Board: this.game.findWinnerOfRound(this.players) = " + this.game.findWinnerOfRound(this.players).id)
-    return this.game.findWinnerOfRound(this.players)
+    return this.game.findWinnerOfRound(this.players);
   }
 
   /**
@@ -189,6 +179,6 @@ module.exports = class Board {
    * @returns the type of game that is being played
    */
   getGameType() {
-    return this.game.gameType
+    return this.game.gameType;
   }
 };

@@ -15,21 +15,19 @@ module.exports = class Card {
     this.suit = suit;
     this.rank = rank;
     this.value = Ranks[rank];
-    this.actualValue = this.getActualValue(this.rank)
+    this.actualValue = this.getActualValue(this.rank);
     this.image = `/Images/Cards/${rank}${suit}.png`;
   }
 
   getActualValue(rank) {
-    switch(rank){
+    switch (rank) {
       case "J":
-        return 11
+        return 11;
       case "Q":
-        return 12
+        return 12;
       case "K":
-        return 13
+        return 13;
     }
-    return this.value
+    return this.value;
   }
-
-  
 };
