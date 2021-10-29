@@ -3,7 +3,7 @@
  * depending on the statuses of a specific user.
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 10/28/2021
  */
 module.exports = class GameLogic {
   constructor(io) {

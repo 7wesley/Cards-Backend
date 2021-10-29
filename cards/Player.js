@@ -68,7 +68,7 @@ module.exports = class Player {
 
   /**
    * Returns the total field.
-   * @returns - The total field
+   * @returns - amount of cards the player has
    */
   getTotal() {
     return this.total;

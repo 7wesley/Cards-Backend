@@ -132,8 +132,9 @@ module.exports = class War {
       // console.log("Its : "+this.turn.id+"'s turn")
       this.flipCard();
     }
-    // else this.turn.setStatus("standing");
-    else this.turn.setStatus("MadeMove");
+
+    //This could be for if the player wants to "automate" their turn
+    else this.flipCard();
   }
 
   /**
@@ -208,7 +209,7 @@ module.exports = class War {
    */
   getTurns(/*playerSize*/) {
     //Set the default to 4 for debugging purposes
-    return 4;
+    return 6;
   }
 
   /**
