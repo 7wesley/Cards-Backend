@@ -1,18 +1,18 @@
-const Blackjack = require("../../cards/Blackjack");
-const Card = require("../../cards/Card");
+const War = require("../../cards/War");
 const Deck = require("../../cards/Deck");
 const Player = require("../../cards/Player");
+const Card = require("../../cards/Card");
 
-describe("Blackjack tests", () => {
-  let blackjack;
+describe("War tests", () => {
+  let war;
   const deck = new Deck();
 
   beforeEach(() => {
-    blackjack = new Blackjack(deck);
+    war = new War(deck);
   });
 
   it("Deck field is set", () => {
-    expect(blackjack.deck).toEqual(deck);
+    expect(war.deck).toEqual(deck);
   });
 
   it("findWinners finds player with highest card value", () => {
@@ -20,7 +20,7 @@ describe("Blackjack tests", () => {
     const player2 = new Player("test1");
     const card = new Card("H", "A");
     player2.setCards(card);
-    expect(blackjack.findWinners([player1, player2])).toHaveLength(1);
-    expect(blackjack.findWinners([player1, player2])).toEqual([player2]);
+    expect(war.findWinners([player1, player2])).toHaveLength(1);
+    expect(war.findWinners([player1, player2])).toEqual([player2]);
   });
 });

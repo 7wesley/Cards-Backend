@@ -24,7 +24,7 @@ jobs:
         with:
           flags: unittests
           name: cards-backend-unit
-          fail_ci_if_error: true
+          fail_ci_if_error: false
 
   docker-publish:
     runs-on: ubuntu-latest
