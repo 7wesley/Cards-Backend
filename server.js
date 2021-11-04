@@ -84,7 +84,6 @@ io.on("connection", (socket) => {
 
     // console.log("this.board = " + board)
     // console.log("this.board.game = " + board.game)
-    // console.log("this.board.game.gameType = " + board.game.gameType)
     // console.log("this.board.game.gameType = " + board.getGameType())
 
     var dealCards = setInterval(

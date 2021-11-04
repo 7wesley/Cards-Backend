@@ -46,7 +46,6 @@ module.exports = class Board {
    * @returns - The initial cards dealt from the game field
    */
   initialDeal() {
-    // this.game.setGameTypes(this.players)
     return this.game.initialDeal(this.players);
   }
 
@@ -54,7 +53,7 @@ module.exports = class Board {
    * Sets the gameTypes for all the players
    */
   setGameTypes() {
-    this.game.setGameTypes(this.players)
+    this.game.setGameTypes(this.players);
   }
 
   /**

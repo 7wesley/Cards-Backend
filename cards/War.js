@@ -21,7 +21,6 @@ module.exports = class War {
    * drawn from the deck
    */
   initialDeal(players) {
-    // console.log("War: initialDeal")
     var card = this.deck.deal();
     var player = players[this.playerIndex];
     player.setCards(card);
@@ -37,8 +36,8 @@ module.exports = class War {
    * @param {*} players the players to change their gameType
    */
   setGameTypes(players) {
-    for(let i = 0; i < players.length; i++) {
-      players[i].setGameType(this.gameType)
+    for (let i = 0; i < players.length; i++) {
+      players[i].setGameType(this.gameType);
     }
   }
 

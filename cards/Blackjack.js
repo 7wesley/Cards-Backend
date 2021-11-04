@@ -36,8 +36,8 @@ module.exports = class Blackjack {
    * @param {*} players the players to change their gameType
    */
   setGameTypes(players) {
-    for(let i = 0; i < players.length; i++) {
-      players[i].setGameType(this.gameType)
+    for (let i = 0; i < players.length; i++) {
+      players[i].setGameType(this.gameType);
     }
   }
 
