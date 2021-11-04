@@ -13,6 +13,7 @@ module.exports = class Player {
     this.status = "playing";
     this.lastCardFlipped = null;
     this.ifMadeMove = false;
+    this.gameType = null;
   }
 
   /**
@@ -74,6 +75,15 @@ module.exports = class Player {
     return this.total;
   }
 
+
+  /**
+   * Returns the total field.
+   * @returns - amount of cards the player has
+   */
+  getTotalCards() {
+    return this.cards.length + this.backupCards.length;
+  }
+
   /**
    * Returns the cards field.
    * @returns - The cards field
@@ -128,5 +138,13 @@ module.exports = class Player {
       return false;
     }
     return true;
+  }
+
+  /**
+   * Sets the game that the player is currently playing
+   * @param {*} gameType the new gametype the player is playing
+   */
+  setGameType(gameType) {
+    this.gameType = gameType;
   }
 };

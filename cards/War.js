@@ -16,7 +16,7 @@ module.exports = class War {
 
   /**
    * The initial dealing of the cards. Deals one card at a time.
-   * @param {*} players - The player that are part of the game
+   * @param {*} players - The players that are part of the game
    * @returns - The player that was dealt to and the card that was
    * drawn from the deck
    */
@@ -30,6 +30,16 @@ module.exports = class War {
       this.playerIndex = 0;
     }
     return { id: player.id, card };
+  }
+
+  /**
+   * Sets what game the players are playing
+   * @param {*} players the players to change their gameType
+   */
+  setGameTypes(players) {
+    for(let i = 0; i < players.length; i++) {
+      players[i].setGameType(this.gameType)
+    }
   }
 
   /**

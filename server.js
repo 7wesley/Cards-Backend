@@ -73,9 +73,14 @@ io.on("connection", (socket) => {
     let playerList = await db.queryUsers(room);
     if (playerList == null) return false; //exit if list couldnt be created
     let board = new Board(socket.game, playerList);
+    // console.log("calling setGameTypes")
+    // setGameTypes(playerList, board.getGameType())
     io.sockets.adapter.rooms.get(room).board = board;
     io.sockets.adapter.rooms.get(room).timerEnd = false;
     let iterations = board.getTurns();
+
+    //Sets what gametype the player is currently playing
+    board.setGameTypes();
 
     // console.log("this.board = " + board)
     // console.log("this.board.game = " + board.game)

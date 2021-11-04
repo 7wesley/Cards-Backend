@@ -32,6 +32,16 @@ module.exports = class Blackjack {
   }
 
   /**
+   * Sets what game the players are playing
+   * @param {*} players the players to change their gameType
+   */
+  setGameTypes(players) {
+    for(let i = 0; i < players.length; i++) {
+      players[i].setGameType(this.gameType)
+    }
+  }
+
+  /**
    * Determines who's turn it currently is and uses that
    * information to get the next player's turn and return it.
    * @param {*} players - The players currently in the game
