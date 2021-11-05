@@ -57,6 +57,7 @@ module.exports = class GameLogic {
             ${winner.getLastCardFlipped().rank} of 
             ${winner.getLastCardFlipped().suit}`
         );
+        board.resetLastCardFlipped();
       }
       // await this.alert(socket, `${socket.uid} wins the round`);
     } else if (board.getPlayer(socket.uid).getStatus() === "noCards") {

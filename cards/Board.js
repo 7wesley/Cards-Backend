@@ -143,6 +143,15 @@ module.exports = class Board {
   }
 
   /**
+   * Resets all the player's lastCardFlipped
+   */
+  resetLastCardFlipped() {
+    for (let i = 0; i < this.players.length; i++) {
+      this.players[i].resetLastCardFlipped();
+    }
+  }
+
+  /**
    * Gets the winner of a War match
    * @returns the player that won the round
    */

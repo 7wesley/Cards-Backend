@@ -118,8 +118,8 @@ module.exports = class War {
    * deals it to the user who's turn it currently is.
    */
   flipCard() {
-    const card = this.turn.flipCard();
-    console.log("War: last card flipped: " + card.actualValue);
+    this.turn.flipCard();
+    // console.log("War: last card flipped: " + card.actualValue);
     this.turn.setStatus("madeMove");
   }
 
@@ -218,7 +218,7 @@ module.exports = class War {
    */
   getTurns(/*playerSize*/) {
     //Set the default to 4 for debugging purposes
-    return 6;
+    return 10;
   }
 
   /**
