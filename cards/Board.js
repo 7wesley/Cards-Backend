@@ -162,6 +162,16 @@ module.exports = class Board {
   }
 
   /**
+   * Gets the winner of a War tie scenario
+   * @returns the player that won the round
+   */
+  getWinnerOfWar(tiedPlayers) {
+    // console.log("Board: getWinnerOfROund")
+    // console.log("Board: this.game.findWinnerOfRound(this.players) = " + this.game.findWinnerOfRound(this.players).id)
+    return this.game.findWinnerOfWar(tiedPlayers, this.players);
+  }
+
+  /**
    * Gets a specific player from the players field
    * @param {*} uid - The player being searched for
    * @returns - A player from the players field
@@ -192,5 +202,20 @@ module.exports = class Board {
    */
   getGameType() {
     return this.game.gameType;
+  }
+
+  /**
+   * A debug function to test and debug the tie scenario of War
+   */
+  debugWarTie() {
+    this.game.debugWarTie(this.players);
+  }
+
+  getTiedPlayers() {
+    return this.game.getTiedPlayers(this.players);
+  }
+
+  declareWar(tiedPlayers) {
+    this.game.declareWar(tiedPlayers);
   }
 };

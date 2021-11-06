@@ -5,6 +5,8 @@
  * @version 5/13/2021
  */
 
+const Card = require("./Card");
+
 module.exports = class War {
   constructor(deck) {
     this.gameType = "War";
@@ -12,6 +14,7 @@ module.exports = class War {
     this.playerIndex = 0;
     this.dealTurns = 2;
     this.turnIndex = 0;
+    this.cardsToWin = [];
   }
 
   /**
@@ -29,6 +32,15 @@ module.exports = class War {
       this.playerIndex = 0;
     }
     return { id: player.id, card };
+  }
+
+  /**
+   * Sets the last card of 2 players to be equal so a tie scenario can be tested
+   * @param {*} players the players that are playing the game
+   */
+  debugWarTie(players) {
+    players[0].setCards(new Card("C", "K"));
+    players[1].setCards(new Card("D", "K"));
   }
 
   /**
@@ -72,14 +84,32 @@ module.exports = class War {
    * @returns the winner of the round
    */
   findWinnerOfRound(players) {
-    // console.log("War: findWinnerOfRound")
     let winnerOfRound = null;
-    winnerOfRound = this.findHighestCardPlayer(players);
-    // console.log("War: winnerOfRound = "+winnerOfRound.id)
 
-    this.resetPlayerHasMoved(players);
-    // console.log("War: Reset all player moves")
-    // console.log("War: returning whom is the winner of the round:  " + winnerOfRound.id)
+    //Gets the winner of the round of War
+    winnerOfRound = this.findHighestCardPlayer(players);
+
+    //Finds if there is a tie among players
+    var ifTie = this.findIfTie(players, winnerOfRound);
+
+    //Runs this portion if more than two players tied
+    if (ifTie) {
+      let tiedPlayers = this.getTiedPlayers(players);
+
+      //Sets the status of the players that are tied together
+      for (let i = 0; i < tiedPlayers.length; i++) {
+        tiedPlayers[i].setStatus("Tied");
+      }
+    } else {
+      //Adds the winner's cards to their deck
+      this.addCardsToWinningPlayer(winnerOfRound);
+
+      //If any player is out of cards, replace them with backup if they have any
+      this.ifOutOfCards(players);
+
+      //Resets the status of all players
+      this.resetPlayerHasMoved(players);
+    }
 
     return winnerOfRound;
   }
@@ -118,7 +148,13 @@ module.exports = class War {
    * deals it to the user who's turn it currently is.
    */
   flipCard() {
-    this.turn.flipCard();
+    this.cardsToWin.push(this.turn.flipCard());
+    console.log(
+      "War: flipCard: adding card to cardsToWin: " +
+        this.turn.getLastCardFlipped().rank +
+        " of " +
+        this.turn.getLastCardFlipped().suit
+    );
     // console.log("War: last card flipped: " + card.actualValue);
     this.turn.setStatus("madeMove");
   }
@@ -138,7 +174,7 @@ module.exports = class War {
 
     //If the user decides to flip a card
     else if (choice === "draw") {
-      // console.log("Its : "+this.turn.id+"'s turn")
+      console.log("War: makeMove 6 msg");
       this.flipCard();
     }
 
@@ -171,19 +207,51 @@ module.exports = class War {
           highestCardPlayer.getLastCardFlipped().actualValue <
           players[i].getLastCardFlipped().actualValue
         ) {
-          // console.log("Set the highest card to the other player's = " + players[i].getLastCardFlipped().actualValue)
           highestCardPlayer = players[i];
         }
       }
     }
-    // console.log("The highest card is: "+highestCardPlayer.id+" with card value of "+highestCardPlayer.getLastCardFlipped().actualValue)
-
-    this.addCardsToWinningPlayer(players, highestCardPlayer);
-
-    //If any player is out of cards, replace them with backup if they have any
-    this.ifOutOfCards(players);
 
     return highestCardPlayer;
+  }
+
+  /**
+   * Finds the players that tied with the highest card for the round
+   * @param {*} players the players of this game of War
+   * @returns a list of players that had the highest card and tied for the round
+   */
+  getTiedPlayers(players) {
+    let tiedPlayers = [];
+    let currValue =
+      this.findHighestCardPlayer(players).getLastCardFlipped().actualValue;
+
+    for (let i = 0; i < players.length; i++) {
+      if (players[i].getLastCardFlipped().actualValue === currValue) {
+        tiedPlayers.push(players[i]);
+      }
+    }
+    return tiedPlayers;
+  }
+
+  /**
+   * Finds all the players that tied for the round
+   * @param {*} players The players to find if there is a tie
+   * @param {*} highestCardPlayer the player with the highest card of the round
+   * @returns all the players that tied
+   */
+  findIfTie(players, highestCardPlayer) {
+    let tiedPlayers = [];
+    for (let i = 0; i < players.length; i++) {
+      //Compare the highestCardPlayer's Card with all of the other player's cards
+      if (
+        highestCardPlayer.getLastCardFlipped().actualValue ===
+        players[i].getLastCardFlipped().actualValue
+      ) {
+        tiedPlayers.push(players[i]);
+      }
+    }
+
+    return tiedPlayers.length > 1;
   }
 
   /**
@@ -203,11 +271,17 @@ module.exports = class War {
    * @param {*} players the players of this War game
    * @param {*} highestCardPlayer the player that won the round
    */
-  addCardsToWinningPlayer(players, highestCardPlayer) {
-    for (let i = 0; i < players.length; i++) {
+  addCardsToWinningPlayer(highestCardPlayer) {
+    // for (let i = 0; i < players.length; i++) {
+    //   // console.log("War: adding "+players[i].getLastCardFlipped().rank+" to the winner")
+    //   highestCardPlayer.setBackupCards(players[i].getLastCardFlipped());
+    // }
+
+    while (this.cardsToWin.length > 0) {
       // console.log("War: adding "+players[i].getLastCardFlipped().rank+" to the winner")
-      highestCardPlayer.setBackupCards(players[i].getLastCardFlipped());
+      highestCardPlayer.setBackupCards(this.cardsToWin.pop());
     }
+    console.log("War: reset this.cardsToWin\n");
   }
 
   /**
@@ -217,8 +291,8 @@ module.exports = class War {
    * @returns - The number of turns needed for the initial deal.
    */
   getTurns(/*playerSize*/) {
-    //Set the default to 4 for debugging purposes
-    return 10;
+    //Set the default to 2 for debugging purposes
+    return 6;
   }
 
   /**
@@ -230,5 +304,66 @@ module.exports = class War {
   findWinners(players) {
     let highest = Math.max(...players.map((player) => player.getTotal()), 0);
     return players.filter((player) => player.getTotal() === highest);
+  }
+
+  /**
+   * Gets the next card from the top of the deck and
+   * deals it to the user who's turn it currently is.
+   */
+  flipWarCard() {
+    console.log("War: flipWarCard");
+    this.cardsToWin.push(this.turn.flipCard());
+  }
+
+  /**
+   * Has each of the players that are in a tie flip over a card if they have another one
+   * @param {*} players the players of this War game
+   */
+  declareWar(tiedPlayers) {
+    console.log("War: declareWar: 1 msg: looping 3 times: ");
+    for (let i = 0; i < tiedPlayers.length; i++) {
+      //If the the player has no cards in hand, and has backup cards, then shuffle
+      if (
+        tiedPlayers[i].cards.length === 0 &&
+        tiedPlayers[i].getTotalCards() > 0
+      ) {
+        tiedPlayers[i].combineAndShuffleAllCards();
+      }
+
+      //Flip over a card if the player has any to flip over
+      if (tiedPlayers[i].cards.length !== 0) {
+        console.log("War: declareWar: 2 flipping card");
+        this.cardsToWin.push(tiedPlayers[i].flipCard());
+        console.log("War: declareWar: 3 just flipped card");
+      }
+    }
+    console.log("War: declareWar: 4 msg: end of 3rd loop");
+  }
+
+  /**
+   * Finds the winner of a tie scenario of War
+   * @param {*} tiedPlayers the players that are tied to be evaluated
+   */
+  findWinnerOfWar(tiedPlayers, players) {
+    let winner = tiedPlayers[0];
+    for (let i = 1; i < tiedPlayers.length; i++) {
+      if (
+        tiedPlayers[i].getLastCardFlipped().actualValue >
+        winner.getLastCardFlipped().actualValue
+      ) {
+        winner = tiedPlayers[i];
+      }
+    }
+
+    //Adds the winner's cards to their deck
+    this.addCardsToWinningPlayer(winner);
+
+    //If any player is out of cards, replace them with backup if they have any
+    this.ifOutOfCards(players);
+
+    // //Resets the status of all players
+    // this.resetPlayerHasMoved(players);
+
+    return winner;
   }
 };

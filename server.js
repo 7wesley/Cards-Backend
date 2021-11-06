@@ -96,11 +96,15 @@ io.on("connection", (socket) => {
         io.to(room).emit("update-hands", board.getPlayers());
         iterations--;
         if (iterations == 0) {
+          //TODO comment this out when running
+          //Only use when debugging a tie scenario for WAR
+          board.debugWarTie();
+
           clearInterval(dealCards);
           turns(room);
         }
       },
-      board.getGameType() == "War" ? 100 : 700
+      board.getGameType() == "War" ? 200 : 700
     );
   };
 

@@ -50,16 +50,63 @@ module.exports = class GameLogic {
 
       //If all players have gone, then display the winner of the round
       if (board.ifAllPlayersMoved()) {
-        let winner = board.getWinnerOfRound();
-        await this.alert(
-          socket,
-          `${winner.getId()} Won the Round with the card
+        //If there is a tie between 2 or more players with the highest card value
+        if (board.getTiedPlayers().length > 1) {
+          //Do the Tie scenario
+          await this.alert(socket, `This Means WAR!!!`);
+          let declareWar = true;
+          let tiedPlayers = board.getTiedPlayers();
+
+          while (declareWar) {
+            //Run through an instance of I De Clare War
+            for (let i = 0; i < 4; i++) {
+              console.log("\n3 msg");
+              board.declareWar(tiedPlayers);
+              this.io.to(socket.room).emit("update-hands", board.getPlayers());
+
+              if (i == 0) {
+                await this.alert(socket, `I...`);
+              } else if (i === 1) {
+                await this.alert(socket, `De...`);
+              } else if (i === 2) {
+                await this.alert(socket, `Clare...`);
+              } else if (i === 3) {
+                await this.alert(socket, `War!!!`);
+              }
+
+              //Finds if the players tied after a tie
+              if (i == 3 && board.getTiedPlayers().length == 1) {
+                declareWar = false;
+                console.log("The War ended");
+              }
+            }
+          }
+
+          console.log("1 msg");
+          let winner = board.getWinnerOfWar(tiedPlayers);
+          console.log("2 msg, winner = " + winner.id);
+
+          await this.alert(
+            socket,
+            `${winner.getId()} Won the Round with the card
             ${winner.getLastCardFlipped().rank} of 
             ${winner.getLastCardFlipped().suit}`
-        );
-        board.resetLastCardFlipped();
+          );
+          board.resetLastCardFlipped();
+        }
+
+        //There is no tie and can display the winner as usual
+        else {
+          let winner = board.getWinnerOfRound();
+          await this.alert(
+            socket,
+            `${winner.getId()} Won the Round with the card
+            ${winner.getLastCardFlipped().rank} of 
+            ${winner.getLastCardFlipped().suit}`
+          );
+          board.resetLastCardFlipped();
+        }
       }
-      // await this.alert(socket, `${socket.uid} wins the round`);
     } else if (board.getPlayer(socket.uid).getStatus() === "noCards") {
       await this.removePlayer(socket, board, `${socket.uid} is out of cards!`);
     }
