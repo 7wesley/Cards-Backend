@@ -211,10 +211,27 @@ module.exports = class Board {
     this.game.debugWarTie(this.players);
   }
 
+  /**
+   * Finds all the players that are tied, and returns them
+   * @returns a list of players that are tied
+   */
   getTiedPlayers() {
     return this.game.getTiedPlayers(this.players);
   }
 
+  /**
+   * Finds if the players are still tied after a round of war
+   * @param {*} tiedPlayers the players that used to be tied
+   * @returns if the players are still tied
+   */
+  ifStillTied(tiedPlayers) {
+    return this.game.ifStillTied(tiedPlayers);
+  }
+
+  /**
+   * Declares war amongst the given players
+   * @param {*} tiedPlayers declares war among the tied players
+   */
   declareWar(tiedPlayers) {
     this.game.declareWar(tiedPlayers);
   }

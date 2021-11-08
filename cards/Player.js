@@ -116,7 +116,6 @@ module.exports = class Player {
    * Resets the player's lastCardFlipped
    */
   resetLastCardFlipped() {
-    // console.log("Player: Reset player "+this.id+"'s lastCardFlipped")
     this.lastCardFlipped = null;
   }
 

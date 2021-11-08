@@ -39,8 +39,19 @@ module.exports = class GameLogic {
     } else if (board.getPlayer(socket.uid).getStatus() === "standing") {
       await this.alert(socket, `${socket.uid} Stands!`);
     } else if (board.getPlayer(socket.uid).getStatus() === "playing") {
-      await this.alert(socket, `${socket.uid} drew a card!`);
+      await this.alert(socket, `this should be when a player quits again!`);
+      // console.log("gameLogic: all players have moved (2)")
+
+      let winner = board.getWinnerOfRound();
+      await this.alert(
+        socket,
+        `${winner.getId()} Won the Round with the card
+        ${winner.getLastCardFlipped().rank} of 
+        ${winner.getLastCardFlipped().suit}`
+      );
+      board.resetLastCardFlipped();
     } else if (board.getPlayer(socket.uid).getStatus() === "madeMove") {
+      //Do a check here
       await this.alert(
         socket,
         `${socket.uid} Flipped over a 
@@ -50,6 +61,8 @@ module.exports = class GameLogic {
 
       //If all players have gone, then display the winner of the round
       if (board.ifAllPlayersMoved()) {
+        // console.log("gameLogic: all players have moved")
+
         //If there is a tie between 2 or more players with the highest card value
         if (board.getTiedPlayers().length > 1) {
           //Do the Tie scenario
@@ -60,7 +73,6 @@ module.exports = class GameLogic {
           while (declareWar) {
             //Run through an instance of I De Clare War
             for (let i = 0; i < 4; i++) {
-              console.log("\n3 msg");
               board.declareWar(tiedPlayers);
               this.io.to(socket.room).emit("update-hands", board.getPlayers());
 
@@ -74,17 +86,21 @@ module.exports = class GameLogic {
                 await this.alert(socket, `War!!!`);
               }
 
+              // console.log("i = "+ i)
+              // console.log("board.getTiedPlayers().length = "+board.getTiedPlayers().length)
+
               //Finds if the players tied after a tie
-              if (i == 3 && board.getTiedPlayers().length == 1) {
+              if (i == 3 && !board.ifStillTied(tiedPlayers)) {
+                // console.log("gameLogic: Players are no longer tied")
                 declareWar = false;
-                console.log("The War ended");
+                // console.log("gameLogic: The War ended");
               }
             }
           }
 
-          console.log("1 msg");
+          // console.log("gameLogic: before find the winner");
           let winner = board.getWinnerOfWar(tiedPlayers);
-          console.log("2 msg, winner = " + winner.id);
+          // console.log("gameLogic: winner = " + winner.id);
 
           await this.alert(
             socket,
@@ -106,6 +122,7 @@ module.exports = class GameLogic {
           );
           board.resetLastCardFlipped();
         }
+        // console.log("gameLogic: last msg, all players have moved ended")
       }
     } else if (board.getPlayer(socket.uid).getStatus() === "noCards") {
       await this.removePlayer(socket, board, `${socket.uid} is out of cards!`);

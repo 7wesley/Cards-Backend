@@ -35,12 +35,15 @@ module.exports = class War {
   }
 
   /**
+   * Only use this for Debugging War!
+   *
    * Sets the last card of 2 players to be equal so a tie scenario can be tested
    * @param {*} players the players that are playing the game
    */
   debugWarTie(players) {
     players[0].setCards(new Card("C", "K"));
     players[1].setCards(new Card("D", "K"));
+    players[2].setCards(new Card("H", "Q"));
   }
 
   /**
@@ -54,22 +57,72 @@ module.exports = class War {
   }
 
   /**
+   * Finds the player that has to go next
+   * @param {*} players The players currently in the game
+   * @returns the player whose turn it is
+   */
+  findNextTurn(players) {
+    // console.log("War: findNextTurn: begin")
+    for (let i = 0; i < players.length; i++) {
+      // console.log("player "+players[i].id+"'s ifMadeMove = "+players[i].getIfMadeMove())
+      // console.log("player "+players[i].id+"'s status = "+players[i].status)
+      // console.log("player "+players[i].id+"'s getLastCardFlipped() = "+players[i].getLastCardFlipped())
+
+      // if(players[i].getLastCardFlipped() == null) {
+      //   console.log("player "+players[i].id+"'s last card flipped = null")
+      // }
+
+      // else {
+      //   console.log(
+      //     "Player[i].getLastCard() = " +
+      //       players[i].getLastCardFlipped().rank +
+      //       " of " +
+      //       players[i].getLastCardFlipped().suit
+      //   );
+      // }
+
+      //If the player has not already made a move, then its their turn
+      if (players[i].getLastCardFlipped() == null) {
+        // console.log("War: nextTurn(): it is player "+players[i].id+" 's turn")
+        return players[i];
+      }
+    }
+    return null;
+  }
+
+  /**
    * Determines who's turn it currently is and uses that
    * information to get the next player's turn and return it.
    * @param {*} players - The players currently in the game
    * @returns - The numeric representation of who's turn it is
    */
   nextTurn(players) {
-    if (players && this.turnIndex < players.length) {
-      this.turn = players[this.turnIndex];
-      this.turnIndex++;
-      if (this.turnIndex == players.length) {
-        this.turnIndex = 0;
-      }
-    } else if (players) {
-      this.turn = players[0];
-      this.turnIndex = 0;
+    //finds the current player's turn
+    let currPlayer = this.findNextTurn(players);
+    if (currPlayer != null) {
+      // console.log("War: nextTurn(): it is player "+currPlayer.id+" 's turn")
+      this.turn = currPlayer;
     }
+
+    //All players have moved, so it is the first player's turn
+    else {
+      if (this.ifAllPlayersMoved(players)) {
+        console.log("All players have moved");
+      }
+      // console.log("War: nextTurn(): it is player "+players[0].id+" 's turn")
+      this.turn = players[0];
+    }
+
+    // if (players && this.turnIndex < players.length) {
+    //   this.turn = players[this.turnIndex];
+    //   this.turnIndex++;
+    //   if (this.turnIndex == players.length) {
+    //     this.turnIndex = 0;
+    //   }
+    // } else if (players) {
+    //   this.turn = players[0];
+    //   this.turnIndex = 0;
+    // }
 
     //Set this player's turn as finished
     this.turn.setIfMadeMove(true);
@@ -149,12 +202,12 @@ module.exports = class War {
    */
   flipCard() {
     this.cardsToWin.push(this.turn.flipCard());
-    console.log(
-      "War: flipCard: adding card to cardsToWin: " +
-        this.turn.getLastCardFlipped().rank +
-        " of " +
-        this.turn.getLastCardFlipped().suit
-    );
+    // console.log(
+    //   "War: flipCard: adding card to cardsToWin: " +
+    //     this.turn.getLastCardFlipped().rank +
+    //     " of " +
+    //     this.turn.getLastCardFlipped().suit
+    // );
     // console.log("War: last card flipped: " + card.actualValue);
     this.turn.setStatus("madeMove");
   }
@@ -174,7 +227,7 @@ module.exports = class War {
 
     //If the user decides to flip a card
     else if (choice === "draw") {
-      console.log("War: makeMove 6 msg");
+      // console.log("War: makeMove 6 msg");
       this.flipCard();
     }
 
@@ -228,9 +281,42 @@ module.exports = class War {
     for (let i = 0; i < players.length; i++) {
       if (players[i].getLastCardFlipped().actualValue === currValue) {
         tiedPlayers.push(players[i]);
+
+        // console.log("adding "+players[i].id+" with last card flipped = "+
+        //   players[i].getLastCardFlipped().rank +"of" + players[i].getLastCardFlipped().suit)
       }
     }
     return tiedPlayers;
+  }
+
+  /**
+   * Finds the winner of an I De Clare War scenario
+   * @param {*} tiedPlayers the players that used to be tied
+   * @returns the winner of the previously tied players
+   */
+  ifStillTied(tiedPlayers) {
+    let currValue = tiedPlayers[0].getLastCardFlipped().actualValue;
+    let currTiedPlayers = [];
+
+    // console.log("War: ifStillTied: currValue = "+currValue);
+
+    for (let i = 0; i < tiedPlayers.length; i++) {
+      if (tiedPlayers[i].getLastCardFlipped().actualValue > currValue) {
+        currValue = tiedPlayers[i].getLastCardFlipped().actualValue;
+        // console.log("War: isStillTied: changed currValue to = "+currValue);
+      }
+    }
+
+    for (let i = 0; i < tiedPlayers.length; i++) {
+      if (tiedPlayers[i].getLastCardFlipped().actualValue == currValue) {
+        currTiedPlayers.push(tiedPlayers[i]);
+        // console.log("War: isStillTied: added player "+tiedPlayers[i].id)
+
+        // console.log("adding "+players[i].id+" with last card flipped = "+
+        //   players[i].getLastCardFlipped().rank +"of" + players[i].getLastCardFlipped().suit)
+      }
+    }
+    return currTiedPlayers.length == tiedPlayers.length;
   }
 
   /**
@@ -281,7 +367,7 @@ module.exports = class War {
       // console.log("War: adding "+players[i].getLastCardFlipped().rank+" to the winner")
       highestCardPlayer.setBackupCards(this.cardsToWin.pop());
     }
-    console.log("War: reset this.cardsToWin\n");
+    // console.log("War: reset this.cardsToWin\n");
   }
 
   /**
@@ -311,7 +397,7 @@ module.exports = class War {
    * deals it to the user who's turn it currently is.
    */
   flipWarCard() {
-    console.log("War: flipWarCard");
+    // console.log("War: flipWarCard");
     this.cardsToWin.push(this.turn.flipCard());
   }
 
@@ -320,7 +406,7 @@ module.exports = class War {
    * @param {*} players the players of this War game
    */
   declareWar(tiedPlayers) {
-    console.log("War: declareWar: 1 msg: looping 3 times: ");
+    // console.log("War: declareWar: 1 msg: looping 3 times: ");
     for (let i = 0; i < tiedPlayers.length; i++) {
       //If the the player has no cards in hand, and has backup cards, then shuffle
       if (
@@ -332,12 +418,12 @@ module.exports = class War {
 
       //Flip over a card if the player has any to flip over
       if (tiedPlayers[i].cards.length !== 0) {
-        console.log("War: declareWar: 2 flipping card");
+        // console.log("War: declareWar: 2 flipping card");
         this.cardsToWin.push(tiedPlayers[i].flipCard());
-        console.log("War: declareWar: 3 just flipped card");
+        // console.log("War: declareWar: 3 just flipped card");
       }
     }
-    console.log("War: declareWar: 4 msg: end of 3rd loop");
+    // console.log("War: declareWar: 4 msg: end of 3rd loop");
   }
 
   /**

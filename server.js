@@ -98,7 +98,7 @@ io.on("connection", (socket) => {
         if (iterations == 0) {
           //TODO comment this out when running
           //Only use when debugging a tie scenario for WAR
-          board.debugWarTie();
+          // board.debugWarTie();
 
           clearInterval(dealCards);
           turns(room);
@@ -149,8 +149,17 @@ io.on("connection", (socket) => {
         // console.log("board.isPlaying(player.id): " + board.isPlaying(player.id))
         // console.log("board.isTurn(player.id): " + board.isTurn(player.id))
 
+        //Handles when the last player to make a move has left
+        if (player.getLastCardFlipped() != null) {
+          await gameHandler(match[player.id], board);
+        }
+
         //while the player is still in the game and its their turn
-        while (board.isPlaying(player.id) && board.isTurn(player.id)) {
+        while (
+          board.isPlaying(player.id) &&
+          board.isTurn(player.id) &&
+          player.getLastCardFlipped() == null
+        ) {
           // console.log("\n\nserver: "+player.id+"'s turn")
 
           io.to(room).emit("curr-turn", player.id);
