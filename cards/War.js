@@ -7,7 +7,7 @@
 
 const Card = require("./Card");
 
-module.exports = class War {
+class War {
   constructor(deck) {
     this.gameType = "War";
     this.deck = deck;
@@ -452,4 +452,6 @@ module.exports = class War {
 
     return winner;
   }
-};
+}
+
+module.exports = War;

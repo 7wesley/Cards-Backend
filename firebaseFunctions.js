@@ -4,7 +4,7 @@
  * @author Wesley Miller
  * @version 5/13/2021
  */
-var { db, del } = require("./firebase");
+var { db, del, arrayUnion } = require("./firebase");
 module.exports = {
   /**
    * Adds a player to a room in the database.
@@ -16,7 +16,7 @@ module.exports = {
       .collection("rooms")
       .doc(roomId)
       .update({
-        ["players." + uid]: uid,
+        players: arrayUnion(uid),
       });
   },
 

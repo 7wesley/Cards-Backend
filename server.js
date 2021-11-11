@@ -52,7 +52,7 @@ io.on("connection", (socket) => {
     //be executed even if the socket disconnects
     console.log(`Socket ${socket.id} joining ${room}`);
     socket.join(room);
-    //want to add the player to the db so it will show on the waiting screen
+    //Add player to db
     await db.addPlayer(room, uid);
     socket.room = room;
     socket.uid = uid;
@@ -70,42 +70,22 @@ io.on("connection", (socket) => {
    * @param {*} room - The room the socket is part of
    */
   const start = async (room) => {
-    let playerList = await db.queryUsers(room);
-    if (playerList == null) return false; //exit if list couldnt be created
+    const playerList = await db.queryUsers(room);
     let board = new Board(socket.game, playerList);
-    // console.log("calling setGameTypes")
-    // setGameTypes(playerList, board.getGameType())
     io.sockets.adapter.rooms.get(room).board = board;
     io.sockets.adapter.rooms.get(room).timerEnd = false;
-    let iterations = board.getTurns();
+    let iterations = board.getGame().getTurns();
 
-    //Sets what gametype the player is currently playing
-    board.setGameTypes();
-
-    // console.log("this.board = " + board)
-    // console.log("this.board.game = " + board.game)
-    // console.log("this.board.game.gameType = " + board.getGameType())
-
-    var dealCards = setInterval(
-      () => {
-        try {
-          board.initialDeal();
-        } catch {
-          console.log("Player left during initial setup");
-        }
-        io.to(room).emit("update-hands", board.getPlayers());
-        iterations--;
-        if (iterations == 0) {
-          //TODO comment this out when running
-          //Only use when debugging a tie scenario for WAR
-          // board.debugWarTie();
-
-          clearInterval(dealCards);
-          turns(room);
-        }
-      },
-      board.getGameType() == "War" ? 200 : 700
-    );
+    var dealCards = setInterval(() => {
+      board.getGame().initialDeal();
+      io.to(room).emit("update-hands", board.getPlayers());
+      iterations--;
+      if (iterations == 0) {
+        // board.debugWarTie();
+        clearInterval(dealCards);
+        turns(room);
+      }
+    }, board.getGame().dealTime());
   };
 
   /**
@@ -141,38 +121,26 @@ io.on("connection", (socket) => {
     for (const client of io.sockets.adapter.rooms.get(room))
       match[io.sockets.sockets.get(client).uid] = client;
 
-    while (board.inProgress()) {
+    while (board.getGame().inProgress()) {
       try {
-        player = board.nextTurn();
-
-        // console.log("server: its :"+player.id+"'s turn")
-        // console.log("board.isPlaying(player.id): " + board.isPlaying(player.id))
-        // console.log("board.isTurn(player.id): " + board.isTurn(player.id))
-
+        player = board.getGame().nextTurn();
         //Handles when the last player to make a move has left
+        /*
         if (player.getLastCardFlipped() != null) {
           await gameHandler(match[player.id], board);
         }
+        */
 
-        //while the player is still in the game and its their turn
-        while (
-          board.isPlaying(player.id) &&
-          board.isTurn(player.id) &&
-          player.getLastCardFlipped() == null
-        ) {
-          // console.log("\n\nserver: "+player.id+"'s turn")
-
-          io.to(room).emit("curr-turn", player.id);
-          io.to(match[player.id]).emit("your-turn", getPrompt());
-          await turnTimer(room, board);
-          io.to(socket.room).emit("update-hands", board.getPlayers());
-          await gameHandler(match[player.id], board);
-        }
-      } catch {
-        console.log("Player left during their turn");
+        io.to(room).emit("curr-turn", player.id);
+        io.to(match[player.id]).emit("your-turn", board.getGame().getPrompt());
+        await turnTimer(room, board);
+        io.to(socket.room).emit("update-hands", board.getPlayers());
+        await gameHandler(match[player.id], board);
+      } catch (e) {
+        console.log(e);
       }
     }
-    io.to(socket.room).emit("winners", board.getWinners());
+    io.to(socket.room).emit("winners", board.getGame().findWinners());
     handleGameEnd(socket.room);
   };
 
@@ -185,14 +153,19 @@ io.on("connection", (socket) => {
    */
   const turnTimer = (room, board) => {
     let currRoom = io.sockets.adapter.rooms.get(room);
+
     return new Promise((resolve) => {
       let seconds = 40;
+
       const timer = setInterval(() => {
         seconds % 2 == 0 && io.to(room).emit("timer", seconds / 2);
         if (seconds == 0 || (currRoom && currRoom.timerEnd)) {
+          //Reset timer if it hits 0
           io.to(room).emit("timer", 20);
-          if (currRoom) currRoom.timerEnd = false;
-          seconds == 0 && board.makeMove("pass");
+          if (currRoom) {
+            currRoom.timerEnd = false;
+          }
+          seconds == 0 && board.getGame().makeMove("pass");
           resolve();
           clearInterval(timer);
         }
@@ -207,11 +180,9 @@ io.on("connection", (socket) => {
    */
   socket.on("player-move", (choice) => {
     let board = io.sockets.adapter.rooms.get(socket.room).board;
-    //board.makeMove(socket.uid, choice);
-    board.makeMove(choice);
+
+    board.getGame().makeMove(choice);
     io.sockets.adapter.rooms.get(socket.room).timerEnd = true;
-    //we dont check the status of the move here as it would
-    //run concurrently with the timer
   });
 
   /**
@@ -255,20 +226,6 @@ io.on("connection", (socket) => {
   };
 
   /**
-   * Determines what the current game is and then returns an
-   * appropriate message for the specific game.
-   * @returns A prompt in the form of a string depending on the game type
-   */
-  const getPrompt = () => {
-    switch (socket.game) {
-      case "Blackjack":
-        return "Draw again for 21?";
-      case "War":
-        return "This is Warrr!";
-    }
-  };
-
-  /**
    * Creates a countdown timer for each socket in the room and
    * updates the room status to 'waiting' if at least one user decides
    * not to play again.
@@ -276,9 +233,9 @@ io.on("connection", (socket) => {
    */
   const handleGameEnd = async (room) => {
     let currRoom = io.sockets.adapter.rooms.get(room);
+
     if (currRoom) {
       let promises = [];
-      //currRoom.board = null;
       currRoom.playAgainCnt = 0;
       for (const client of currRoom)
         promises.push(playAgainTimer(io.sockets.sockets.get(client)));
@@ -301,6 +258,7 @@ io.on("connection", (socket) => {
   const playAgainTimer = (client) => {
     return new Promise((resolve) => {
       let seconds = 20;
+
       const timer = setInterval(() => {
         io.to(client.id).emit("timer", seconds);
         //if the client disconnected, the timer reached 0, or the client played again

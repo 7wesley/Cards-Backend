@@ -6,16 +6,16 @@
  */
 
 var Card = require("./Card");
+const suits = require("./Suits");
+const ranks = require("./Ranks");
 /**
  * Represents a deck of cards
  */
-module.exports = class Deck {
+class Deck {
   constructor() {
-    const suits = ["H", "S", "C", "D"];
-    const ranks = ["A", 2, 3, 4, 5, 6, 7, 8, 9, 10, "J", "Q", "K"];
     this.cards = [];
-    for (const suit of suits) {
-      for (const rank of ranks) {
+    for (const suit of Object.keys(suits)) {
+      for (const rank of Object.keys(ranks)) {
         this.cards.push(new Card(suit, rank));
       }
     }
@@ -56,3 +56,5 @@ module.exports = class Deck {
     return total;
   }
 };
+
+module.exports = Deck;

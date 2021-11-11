@@ -10,13 +10,13 @@ var Player = require("./Player");
 var Blackjack = require("./Blackjack");
 var War = require("./War");
 
-module.exports = class Board {
+class Board {
   constructor(game, players) {
     this.deck = new Deck();
     this.game = game;
     this.players = [];
-    for (const [index, [, value]] of Object.entries(Object.entries(players))) {
-      this.players[index] = new Player(players[value]);
+    for (const playerName of players) {
+      this.players.push(new Player(playerName));
     }
     this.startGame();
   }
@@ -27,60 +27,17 @@ module.exports = class Board {
    */
   startGame() {
     if (this.game === "Blackjack") {
-      this.game = new Blackjack(this.deck);
+      this.game = new Blackjack(this.deck, this.players, this.io);
     } else if (this.game === "War") {
       this.game = new War(this.deck);
     }
   }
 
-  /**
-   * Makes a move in the game field.
-   * @param {*} choice - The move to be made
-   */
-  makeMove(choice) {
-    this.game.makeMove(choice);
+  getGame() {
+    return this.game;
   }
 
-  /**
-   * Deals the card in the game field.
-   * @returns - The initial cards dealt from the game field
-   */
-  initialDeal() {
-    return this.game.initialDeal(this.players);
-  }
 
-  /**
-   * Sets the gameTypes for all the players
-   */
-  setGameTypes() {
-    this.game.setGameTypes(this.players);
-  }
-
-  /**
-   * Determines if it's the turn of the user passed in
-   * @param {*} uid - The user who's turn will be checked
-   * @returns true if it's the passed in user's turn, otherwise false
-   */
-  isTurn(uid) {
-    return this.game.getTurn().getId() === uid;
-  }
-
-  /**
-   * Goes to the next turn in the game field and returns the player
-   * who's turn it is
-   * @returns - The player who's turn it is
-   */
-  nextTurn() {
-    return this.game.nextTurn(this.players);
-  }
-
-  /**
-   * Removes a player from the player field
-   * @param {*} uid - The player to be removed
-   */
-  removePlayer(uid) {
-    this.players = this.players.filter((player) => player.id !== uid);
-  }
 
   /**
    * Returns the players field
@@ -181,22 +138,6 @@ module.exports = class Board {
   }
 
   /**
-   * Finds the number of turns in the game field
-   * @returns - The number of turns for the specific game
-   */
-  getTurns() {
-    return this.game.getTurns(this.players.length);
-  }
-
-  /**
-   * Finds the winners in the game field
-   * @returns - The winner(s) of the game
-   */
-  getWinners() {
-    return this.game.findWinners(this.players);
-  }
-
-  /**
    * Returns the game type that is currently being played
    * @returns the type of game that is being played
    */
@@ -235,4 +176,6 @@ module.exports = class Board {
   declareWar(tiedPlayers) {
     this.game.declareWar(tiedPlayers);
   }
-};
+}
+
+module.exports = Board;

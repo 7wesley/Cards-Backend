@@ -4,7 +4,7 @@
  * @author Wesley Miller
  * @version 5/13/2021
  */
-module.exports = class Player {
+class Player {
   constructor(id) {
     this.id = id;
     this.cards = [];
@@ -154,3 +154,5 @@ module.exports = class Player {
     this.gameType = gameType;
   }
 };
+
+module.exports = Player;

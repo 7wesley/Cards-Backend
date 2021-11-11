@@ -153,7 +153,7 @@ module.exports = class GameLogic {
   async removePlayer(socket, board, msg) {
     this.io.to(socket.room).emit("alert", msg),
       await new Promise((resolve) => setTimeout(resolve, 3000));
-    board.removePlayer(socket.uid);
+    board.getGame().removePlayer(socket.uid);
     this.io.to(socket.room).emit("alert", "");
   }
 };

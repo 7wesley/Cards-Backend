@@ -10,7 +10,7 @@ let Ranks = require("./Ranks");
 /**
  * Represents a single card in a deck.
  */
-module.exports = class Card {
+class Card {
   constructor(suit, rank) {
     this.suit = suit;
     this.rank = rank;
@@ -31,3 +31,5 @@ module.exports = class Card {
     return this.value;
   }
 };
+
+module.exports = Card;
