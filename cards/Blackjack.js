@@ -5,10 +5,13 @@
  * @version 5/13/2021
  */
 
-class Blackjack {
-  constructor(deck, players, io) {
-    this.players = players;
-    this.deck = deck;
+const Dealer = require("./Dealer");
+const Game = require("./Game");
+
+class Blackjack extends Game {
+  constructor(players) {
+    super(players);
+    this.dealer = new Dealer("Blackjack");
     this.turnIndex = 0;
   }
 
@@ -18,12 +21,12 @@ class Blackjack {
    * drawn from the deck
    */
   initialDeal() {
-    const card = this.deck.deal();
-    const player = this.players[this.turnIndex];
-
-    player.setCards(card);
-    this.incrementTurn();
-    return { id: player.id, card: card };
+    for (let i = 0; i < 2; i++) {
+      for (const player of this.players) {
+        player.addCard(this.deck.deal());
+      }
+      this.dealer.addCard(this.deck.deal());
+    }
   }
 
   /**
@@ -51,7 +54,7 @@ class Blackjack {
    */
   dealCard() {
     const card = this.deck.deal();
-    this.turn.setCards(card);
+    this.turn.addCard(card);
     if (this.turn.getTotal() > 21) {
       this.turn.setStatus("busted");
     }
@@ -96,13 +99,6 @@ class Blackjack {
     }
   }
 
-  inProgress() {
-    const playing = this.players.filter(
-      (player) => player.getStatus() === "playing"
-    );
-    return playing.length !== 0;
-  }
-
   getPrompt() {
     return "Draw again for 21?";
   }
@@ -114,7 +110,6 @@ class Blackjack {
    * @returns - The this.players who won
    */
   findWinners() {
-    console.log(this.players)
     let highest = Math.max(
       ...this.players.map((player) => player.getTotal()),
       0
@@ -122,16 +117,14 @@ class Blackjack {
     return this.players.filter((player) => player.getTotal() === highest);
   }
 
-   /**
-   * Removes a player from the player field
-   * @param {*} uid - The player to be removed
-   */
-    removePlayer(uid) {
-      this.players = this.players.filter((player) => player.id !== uid);
-    }
-
   dealTime() {
     return 700;
+  }
+
+  displayPlayers() {
+    let players = super.getPlayersFormatted();
+    players.push(this.dealer.toString());
+    return players;
   }
 }
 

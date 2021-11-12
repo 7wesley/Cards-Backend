@@ -11,6 +11,7 @@ let Ranks = require("./Ranks");
  * Represents a single card in a deck.
  */
 class Card {
+
   constructor(suit, rank) {
     this.suit = suit;
     this.rank = rank;

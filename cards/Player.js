@@ -8,19 +8,26 @@ class Player {
   constructor(id) {
     this.id = id;
     this.cards = [];
-    this.backupCards = [];
     this.total = 0;
     this.status = "playing";
-    this.lastCardFlipped = null;
-    this.ifMadeMove = false;
-    this.gameType = null;
+    this.bank = 100;
+    this.bet = 0;
+    //this.backupCards = [];
+    //this.lastCardFlipped = null;
+    //this.ifMadeMove = false;
+    //this.gameType = null;
+  }
+
+  bust() {
+    this.bank -= this.bet;
+    this.bet = 0;
   }
 
   /**
    * Sets the cards field to the card passed in.
    * @param {*} card - The card to be set
    */
-  setCards(card) {
+  addCard(card) {
     this.cards.push(card);
     this.total += card.value;
   }
@@ -153,6 +160,13 @@ class Player {
   setGameType(gameType) {
     this.gameType = gameType;
   }
-};
+
+  toString() {
+    return {
+      id: this.id,
+      cards: this.cards,
+    };
+  }
+}
 
 module.exports = Player;

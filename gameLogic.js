@@ -13,68 +13,70 @@ module.exports = class GameLogic {
   }
 
   /**
-   * Checks the status of the socket passed in using the room's board
+   * Checks the status of the socket passed in using the room's game
    * instance and then emits the appropriate message to the socket.
    * @param {*} socket - The current turn's socket
-   * @param {*} board - The board instance of the current room
+   * @param {*} game - The game instance of the current room
    */
-  async blackjack(socket, board) {
-    if (board.getPlayer(socket.uid).getStatus() === "busted") {
-      await this.removePlayer(socket, board, `${socket.uid} Busts!`);
-    } else if (board.getPlayer(socket.uid).getStatus() === "standing") {
+  async blackjack(socket, game) {
+    if (game.getPlayer(socket.uid).getStatus() === "busted") {
+      await this.removePlayer(socket, game, `${socket.uid} Busts!`);
+    } else if (game.getPlayer(socket.uid).getStatus() === "standing") {
       await this.alert(socket, `${socket.uid} Stands!`);
     }
-    this.io.to(socket.room).emit("update-hands", board.getPlayers());
+    this.io.to(socket.room).emit("update-hands", game.displayPlayers());
   }
 
   /**
-   * Checks the status of the socket passed in using the room's board
+   * Checks the status of the socket passed in using the room's game
    * instance and then emits the appropriate message to the socket.
    * @param {*} socket - The current turn's socket
-   * @param {*} board - The board instance of the current room
+   * @param {*} game - The game instance of the current room
    */
-  async war(socket, board) {
-    if (board.getPlayer(socket.uid).getStatus() === "busted") {
-      await this.removePlayer(socket, board, `${socket.uid} Busts!`);
-    } else if (board.getPlayer(socket.uid).getStatus() === "standing") {
+  async war(socket, game) {
+    if (game.getPlayer(socket.uid).getStatus() === "busted") {
+      await this.removePlayer(socket, game, `${socket.uid} Busts!`);
+    } else if (game.getPlayer(socket.uid).getStatus() === "standing") {
       await this.alert(socket, `${socket.uid} Stands!`);
-    } else if (board.getPlayer(socket.uid).getStatus() === "playing") {
+    } else if (game.getPlayer(socket.uid).getStatus() === "playing") {
       await this.alert(socket, `this should be when a player quits again!`);
       // console.log("gameLogic: all players have moved (2)")
 
-      let winner = board.getWinnerOfRound();
+      let winner = game.getWinnerOfRound();
       await this.alert(
         socket,
         `${winner.getId()} Won the Round with the card
         ${winner.getLastCardFlipped().rank} of 
         ${winner.getLastCardFlipped().suit}`
       );
-      board.resetLastCardFlipped();
-    } else if (board.getPlayer(socket.uid).getStatus() === "madeMove") {
+      game.resetLastCardFlipped();
+    } else if (game.getPlayer(socket.uid).getStatus() === "madeMove") {
       //Do a check here
       await this.alert(
         socket,
         `${socket.uid} Flipped over a 
-          ${board.getPlayer(socket.uid).getLastCardFlipped().rank} of 
-          ${board.getPlayer(socket.uid).getLastCardFlipped().suit}`
+          ${game.getPlayer(socket.uid).getLastCardFlipped().rank} of 
+          ${game.getPlayer(socket.uid).getLastCardFlipped().suit}`
       );
 
       //If all players have gone, then display the winner of the round
-      if (board.ifAllPlayersMoved()) {
+      if (game.ifAllPlayersMoved()) {
         // console.log("gameLogic: all players have moved")
 
         //If there is a tie between 2 or more players with the highest card value
-        if (board.getTiedPlayers().length > 1) {
+        if (game.getTiedPlayers().length > 1) {
           //Do the Tie scenario
           await this.alert(socket, `This Means WAR!!!`);
           let declareWar = true;
-          let tiedPlayers = board.getTiedPlayers();
+          let tiedPlayers = game.getTiedPlayers();
 
           while (declareWar) {
             //Run through an instance of I De Clare War
             for (let i = 0; i < 4; i++) {
-              board.declareWar(tiedPlayers);
-              this.io.to(socket.room).emit("update-hands", board.getPlayers());
+              game.declareWar(tiedPlayers);
+              this.io
+                .to(socket.room)
+                .emit("update-hands", game.displayPlayers());
 
               if (i == 0) {
                 await this.alert(socket, `I...`);
@@ -87,10 +89,10 @@ module.exports = class GameLogic {
               }
 
               // console.log("i = "+ i)
-              // console.log("board.getTiedPlayers().length = "+board.getTiedPlayers().length)
+              // console.log("game.getTiedPlayers().length = "+game.getTiedPlayers().length)
 
               //Finds if the players tied after a tie
-              if (i == 3 && !board.ifStillTied(tiedPlayers)) {
+              if (i == 3 && !game.ifStillTied(tiedPlayers)) {
                 // console.log("gameLogic: Players are no longer tied")
                 declareWar = false;
                 // console.log("gameLogic: The War ended");
@@ -99,7 +101,7 @@ module.exports = class GameLogic {
           }
 
           // console.log("gameLogic: before find the winner");
-          let winner = board.getWinnerOfWar(tiedPlayers);
+          let winner = game.getWinnerOfWar(tiedPlayers);
           // console.log("gameLogic: winner = " + winner.id);
 
           await this.alert(
@@ -108,26 +110,26 @@ module.exports = class GameLogic {
             ${winner.getLastCardFlipped().rank} of 
             ${winner.getLastCardFlipped().suit}`
           );
-          board.resetLastCardFlipped();
+          game.resetLastCardFlipped();
         }
 
         //There is no tie and can display the winner as usual
         else {
-          let winner = board.getWinnerOfRound();
+          let winner = game.getWinnerOfRound();
           await this.alert(
             socket,
             `${winner.getId()} Won the Round with the card
             ${winner.getLastCardFlipped().rank} of 
             ${winner.getLastCardFlipped().suit}`
           );
-          board.resetLastCardFlipped();
+          game.resetLastCardFlipped();
         }
         // console.log("gameLogic: last msg, all players have moved ended")
       }
-    } else if (board.getPlayer(socket.uid).getStatus() === "noCards") {
-      await this.removePlayer(socket, board, `${socket.uid} is out of cards!`);
+    } else if (game.getPlayer(socket.uid).getStatus() === "noCards") {
+      await this.removePlayer(socket, game, `${socket.uid} is out of cards!`);
     }
-    this.io.to(socket.room).emit("update-hands", board.getPlayers());
+    this.io.to(socket.room).emit("update-hands", game.displayPlayers());
   }
 
   /**
@@ -145,15 +147,15 @@ module.exports = class GameLogic {
   /**
    * Sends an alert message that will be emitted to the room of
    * the socket passed in, and also removes the socket passed in
-   * from the board.
+   * from the game.
    * @param {*} socket - The current turn's socket
-   * @param {*} board - The board instance of the current room
+   * @param {*} game - The game instance of the current room
    * @param {*} msg - The alert message to be emitted
    */
-  async removePlayer(socket, board, msg) {
+  async removePlayer(socket, game, msg) {
     this.io.to(socket.room).emit("alert", msg),
       await new Promise((resolve) => setTimeout(resolve, 3000));
-    board.getGame().removePlayer(socket.uid);
+    game.removePlayer(socket.uid);
     this.io.to(socket.room).emit("alert", "");
   }
 };

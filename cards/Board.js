@@ -27,7 +27,7 @@ class Board {
    */
   startGame() {
     if (this.game === "Blackjack") {
-      this.game = new Blackjack(this.deck, this.players, this.io);
+      this.game = new Blackjack(this.deck, this.players);
     } else if (this.game === "War") {
       this.game = new War(this.deck);
     }
@@ -36,8 +36,6 @@ class Board {
   getGame() {
     return this.game;
   }
-
-
 
   /**
    * Returns the players field
