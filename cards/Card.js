@@ -17,7 +17,6 @@ class Card {
     this.rank = rank;
     this.value = Ranks[rank];
     this.actualValue = this.getActualValue(this.rank);
-    this.image = `/Images/Cards/${rank}${suit}.png`;
   }
 
   getActualValue(rank) {

@@ -10,7 +10,6 @@ class Player {
     this.cards = [];
     this.total = 0;
     this.status = "playing";
-    this.bank = 100;
     this.bet = 0;
     //this.backupCards = [];
     //this.lastCardFlipped = null;
@@ -30,6 +29,10 @@ class Player {
   addCard(card) {
     this.cards.push(card);
     this.total += card.value;
+  }
+
+  setBet(bet) {
+    this.bet = bet;
   }
 
   /**

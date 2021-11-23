@@ -42,7 +42,7 @@ class Blackjack extends Game {
       }
       this.turn = this.players[this.turnIndex];
     } else if (this.players) {
-      this.turn = players[0];
+      this.turn = this.players[0];
       this.turnIndex = 0;
     }
     return this.turn;
@@ -55,6 +55,7 @@ class Blackjack extends Game {
   dealCard() {
     const card = this.deck.deal();
     this.turn.addCard(card);
+
     if (this.turn.getTotal() > 21) {
       this.turn.setStatus("busted");
     }
@@ -72,6 +73,10 @@ class Blackjack extends Game {
     } else {
       this.turn.setStatus("standing");
     }
+  }
+
+  defaultMove() {
+    this.makeMove("draw");
   }
 
   /**
@@ -110,6 +115,10 @@ class Blackjack extends Game {
    * @returns - The this.players who won
    */
   findWinners() {
+    //Get rid of busted players
+    this.players = this.players.filter(
+      (player) => player.getStatus() !== "busted"
+    );
     let highest = Math.max(
       ...this.players.map((player) => player.getTotal()),
       0

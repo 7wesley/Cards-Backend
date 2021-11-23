@@ -25,7 +25,7 @@ class Game {
   getPlayersFormatted() {
     let players = [];
     for (const player of this.players) {
-      players.push(player.toString());
+      players.push(player);
     }
     return players;
   }

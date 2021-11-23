@@ -14,11 +14,12 @@ class Dealer {
 
   toString() {
     let visibleCards = this.cards;
-    if (this.gameType == "Blackjack") {
+    if (this.gameType == "Blackjack" && this.cards.length == 2) {
       visibleCards = visibleCards.slice(0, -1);
-      visibleCards.push(new Card(null, null));
+      visibleCards.push(new Card("H", "H"));
     }
     return {
+      id: "Dealer",
       dealer: true,
       cards: visibleCards,
     };
