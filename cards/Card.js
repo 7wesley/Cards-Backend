@@ -11,25 +11,19 @@ let Ranks = require("./Ranks");
  * Represents a single card in a deck.
  */
 class Card {
-
   constructor(suit, rank) {
     this.suit = suit;
     this.rank = rank;
     this.value = Ranks[rank];
-    this.actualValue = this.getActualValue(this.rank);
   }
 
-  getActualValue(rank) {
-    switch (rank) {
-      case "J":
-        return 11;
-      case "Q":
-        return 12;
-      case "K":
-        return 13;
-    }
+  getValue() {
     return this.value;
   }
-};
+
+  getRank() {
+    return this.rank;
+  }
+}
 
 module.exports = Card;

@@ -31,10 +31,13 @@ class Game {
   }
 
   inProgress() {
-    const playing = this.players.filter(
+    let playingSize = this.players.filter(
       (player) => player.getStatus() === "playing"
-    );
-    return playing.length !== 0;
+    ).length;
+    if (this.dealer && this.dealer.getStatus() === "playing") {
+      playingSize++;
+    }
+    return playingSize !== 0;
   }
 
   isTurn(uid) {

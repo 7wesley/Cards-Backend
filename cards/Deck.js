@@ -14,8 +14,8 @@ const ranks = require("./Ranks");
 class Deck {
   constructor() {
     this.cards = [];
-    for (const suit of Object.keys(suits)) {
-      for (const rank of Object.keys(ranks)) {
+    for (const suit in suits) {
+      for (const rank in ranks) {
         this.cards.push(new Card(suit, rank));
       }
     }

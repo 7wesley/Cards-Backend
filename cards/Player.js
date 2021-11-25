@@ -8,13 +8,16 @@ class Player {
   constructor(id) {
     this.id = id;
     this.cards = [];
-    this.total = 0;
     this.status = "playing";
     this.bet = 0;
     //this.backupCards = [];
     //this.lastCardFlipped = null;
     //this.ifMadeMove = false;
     //this.gameType = null;
+  }
+
+  getCards() {
+    return this.cards;
   }
 
   bust() {
@@ -28,7 +31,6 @@ class Player {
    */
   addCard(card) {
     this.cards.push(card);
-    this.total += card.value;
   }
 
   setBet(bet) {
@@ -75,14 +77,6 @@ class Player {
    */
   getId() {
     return this.id;
-  }
-
-  /**
-   * Returns the total field.
-   * @returns - amount of cards the player has
-   */
-  getTotal() {
-    return this.total;
   }
 
   /**

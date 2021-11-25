@@ -15,12 +15,12 @@ describe("War tests", () => {
     expect(war.deck).toEqual(deck);
   });
 
-  it("findWinners finds player with highest card value", () => {
+  it("getWinners finds player with highest card value", () => {
     const player1 = new Player("test1");
     const player2 = new Player("test1");
     const card = new Card("H", "A");
     player2.setCards(card);
-    expect(war.findWinners([player1, player2])).toHaveLength(1);
-    expect(war.findWinners([player1, player2])).toEqual([player2]);
+    expect(war.getWinners([player1, player2])).toHaveLength(1);
+    expect(war.getWinners([player1, player2])).toEqual([player2]);
   });
 });

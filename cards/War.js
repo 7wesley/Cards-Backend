@@ -387,7 +387,7 @@ class War {
    * @param {*} players - The players currently part of the game
    * @returns - The players who won
    */
-  findWinners(players) {
+  getWinners(players) {
     let highest = Math.max(...players.map((player) => player.getTotal()), 0);
     return players.filter((player) => player.getTotal() === highest);
   }

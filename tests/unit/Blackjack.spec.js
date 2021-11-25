@@ -15,12 +15,12 @@ describe("Blackjack tests", () => {
     expect(blackjack.deck).toEqual(deck);
   });
 
-  it("findWinners finds player with highest card value", () => {
+  it("getWinners finds player with highest card value", () => {
     const player1 = new Player("test1");
     const player2 = new Player("test1");
     const card = new Card("H", "A");
     player2.setCards(card);
-    expect(blackjack.findWinners([player1, player2])).toHaveLength(1);
-    expect(blackjack.findWinners([player1, player2])).toEqual([player2]);
+    expect(blackjack.getWinners([player1, player2])).toHaveLength(1);
+    expect(blackjack.getWinners([player1, player2])).toEqual([player2]);
   });
 });

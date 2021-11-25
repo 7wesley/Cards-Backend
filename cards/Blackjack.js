@@ -7,12 +7,14 @@
 
 const Dealer = require("./Dealer");
 const Game = require("./Game");
+const Ranks = require("./Ranks");
 
 class Blackjack extends Game {
   constructor(players) {
     super(players);
     this.dealer = new Dealer("Blackjack");
     this.turnIndex = 0;
+    this.turn = this.players[0];
   }
 
   /**
@@ -36,14 +38,13 @@ class Blackjack extends Game {
    * @returns - The numeric representation of who's turn it is
    */
   nextTurn() {
-    if (this.players && this.turnIndex < this.players.length) {
-      if (this.turn && this.turn.getStatus() !== "playing") {
-        this.incrementTurn();
-      }
+    if (!this.turn || this.turn.getStatus() !== "playing") {
+      this.turnIndex++;
+    }
+    if (this.turnIndex >= this.players.length) {
+      this.turn = this.dealer;
+    } else {
       this.turn = this.players[this.turnIndex];
-    } else if (this.players) {
-      this.turn = this.players[0];
-      this.turnIndex = 0;
     }
     return this.turn;
   }
@@ -56,9 +57,29 @@ class Blackjack extends Game {
     const card = this.deck.deal();
     this.turn.addCard(card);
 
-    if (this.turn.getTotal() > 21) {
+    let total = this.getTotal(this.turn);
+    if (total == 21) {
+      this.turn.setStatus("blackjack");
+    } else if (total > 21) {
       this.turn.setStatus("busted");
     }
+  }
+
+  getTotal(player) {
+    let total = 0;
+    let numAces = player
+      .getCards()
+      .filter((card) => card.getValue() === Ranks.A).length;
+
+    for (const card of player.getCards()) {
+      total += card.getValue();
+    }
+    for (let i = 0; i < numAces; i++) {
+      if (total > 21) {
+        total -= 10;
+      }
+    }
+    return total;
   }
 
   /**
@@ -75,8 +96,16 @@ class Blackjack extends Game {
     }
   }
 
+  dealerTurn() {
+    if (this.getTotal(this.dealer) < 17) {
+      this.makeMove("draw");
+    } else {
+      this.makeMove("stand");
+    }
+  }
+
   defaultMove() {
-    this.makeMove("draw");
+    this.makeMove("stand");
   }
 
   /**
@@ -88,42 +117,25 @@ class Blackjack extends Game {
   }
 
   /**
-   * Returns the number of turns needed for the initial
-   * deal.
-   * @param {*} this.playersize - The number of this.players part of the game
-   * @returns - The number of turns needed for the initial deal.
-   */
-  getTurns() {
-    return this.players.length * 2;
-  }
-
-  incrementTurn() {
-    this.turnIndex++;
-    if (this.turnIndex == this.players.length) {
-      this.turnIndex = 0;
-    }
-  }
-
-  getPrompt() {
-    return "Draw again for 21?";
-  }
-
-  /**
    * Searches for users who haven't busted and have the highest card total
    * of all users. In the event of a tie, multiple users can be returned
    * @param {*} this.players - The this.players currently part of the game
    * @returns - The this.players who won
    */
-  findWinners() {
-    //Get rid of busted players
-    this.players = this.players.filter(
+  getWinners() {
+    let players = this.players.filter(
       (player) => player.getStatus() !== "busted"
     );
-    let highest = Math.max(
-      ...this.players.map((player) => player.getTotal()),
-      0
-    );
-    return this.players.filter((player) => player.getTotal() === highest);
+    if (this.dealer.getStatus() === "busted" && players.length) {
+      return { prompt: "Dealer busted!", players: players };
+    }
+
+    const dealerTotal = this.getTotal(this.dealer);
+    players = players.filter((player) => this.getTotal(player) > dealerTotal);
+    if (!players.length) {
+      return { players: [this.dealer] };
+    }
+    return { players: players };
   }
 
   dealTime() {
