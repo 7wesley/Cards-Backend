@@ -66,10 +66,10 @@ module.exports = {
    * @returns The player list, otherwise null if the room is deleted
    * during the query process
    */
-  queryUsers: async (roomId) => {
+  queryRoom: async (roomId, data) => {
     try {
       var roomDoc = await db.collection("rooms").doc(roomId).get();
-      return roomDoc.data().players;
+      return roomDoc.data()[data];
     } catch {
       return null;
     }

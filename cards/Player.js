@@ -10,6 +10,7 @@ class Player {
     this.cards = [];
     this.status = "playing";
     this.bet = 0;
+    this.bank = 0;
     //this.backupCards = [];
     //this.lastCardFlipped = null;
     //this.ifMadeMove = false;
@@ -18,11 +19,6 @@ class Player {
 
   getCards() {
     return this.cards;
-  }
-
-  bust() {
-    this.bank -= this.bet;
-    this.bet = 0;
   }
 
   /**
@@ -35,6 +31,25 @@ class Player {
 
   setBet(bet) {
     this.bet = bet;
+    this.bank -= bet;
+  }
+
+  getBet() {
+    return this.bet;
+  }
+
+  updateBank(amount) {
+    this.bank += amount;
+  }
+
+  getBank() {
+    return this.bank;
+  }
+
+  resetFields() {
+    this.bet = 0;
+    this.cards = [];
+    this.status = "playing";
   }
 
   /**

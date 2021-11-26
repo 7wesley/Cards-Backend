@@ -73,11 +73,12 @@ io.on("connection", (socket) => {
    * @param {*} room - The room the socket is part of
    */
   const start = async (room) => {
-    const playerList = await db.queryUsers(room);
+    const playerList = await db.queryRoom(room, "players");
+    const bank = await db.queryRoom(room, "bank");
     let game;
 
     if (socket.game == "Blackjack") {
-      game = new Blackjack(playerList);
+      game = new Blackjack(playerList, bank);
     } else {
       game = new War(playerList);
     }
@@ -232,17 +233,19 @@ io.on("connection", (socket) => {
    * @param {*} room - The room the socket is part of
    */
   const handleGameEnd = async (room) => {
-    console.log(getGame(room).getWinners());
-    io.to(room).emit("winners", getGame(room).getWinners());
+    io.to(room).emit("results", getGame(room).getResults());
     await new Promise((resolve) => setTimeout(resolve, 4000));
+    getGame(room).checkBanks();
 
     //Reset values
     io.to(room).emit("curr-turn", null);
     delete timers[room];
-    io.to(room).emit("winners", null);
+    io.to(room).emit("results", null);
+    getGame(room).resetGame();
+    io.to(socket.room).emit("update-hands", getGame(room).displayPlayers());
 
     //Start again
-    start(room);
+    getBets(room);
   };
 
   const getRoom = (room) => {

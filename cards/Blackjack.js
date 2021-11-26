@@ -10,8 +10,8 @@ const Game = require("./Game");
 const Ranks = require("./Ranks");
 
 class Blackjack extends Game {
-  constructor(players) {
-    super(players);
+  constructor(players, bank) {
+    super(players, bank);
     this.dealer = new Dealer("Blackjack");
     this.turnIndex = 0;
     this.turn = this.players[0];
@@ -122,24 +122,35 @@ class Blackjack extends Game {
    * @param {*} this.players - The this.players currently part of the game
    * @returns - The this.players who won
    */
-  getWinners() {
-    let players = this.players.filter(
+  getResults() {
+    const players = this.players.filter(
       (player) => player.getStatus() !== "busted"
     );
     if (this.dealer.getStatus() === "busted" && players.length) {
-      return { prompt: "Dealer busted!", players: players };
+      return { prompt: "Dealer busted!", winners: players };
     }
 
     const dealerTotal = this.getTotal(this.dealer);
-    players = players.filter((player) => this.getTotal(player) > dealerTotal);
-    if (!players.length) {
-      return { players: [this.dealer] };
-    }
-    return { players: players };
+    const winners = players.filter((player) => {
+      if (this.getTotal(player) > dealerTotal) {
+        player.updateBank(player.getBet() * 2);
+        return true;
+      }
+      return false;
+    });
+    
+    return { winners: winners.length ? winners : [this.dealer] };
   }
 
-  dealTime() {
-    return 700;
+  inProgress() {
+    return super.inProgress() || this.dealer.getStatus() === "playing";
+  }
+
+  resetGame() {
+    super.resetGame();
+    this.dealer = new Dealer("Blackjack");
+    this.turn = this.players[0];
+    this.turnIndex = 0;
   }
 
   displayPlayers() {

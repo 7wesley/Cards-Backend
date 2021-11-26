@@ -9,13 +9,17 @@ var Deck = require("./Deck");
 var Player = require("./Player");
 
 class Game {
-  constructor(players) {
+  constructor(players, bank) {
     this.players = [];
-    for (const playerName of players) {
-      this.players.push(new Player(playerName));
-    }
     this.deck = new Deck();
     this.turn = null;
+    let player;
+
+    for (const playerName of players) {
+      player = new Player(playerName);
+      player.updateBank(bank);
+      this.players.push(player);
+    }
   }
 
   removePlayer(uid) {
@@ -34,9 +38,6 @@ class Game {
     let playingSize = this.players.filter(
       (player) => player.getStatus() === "playing"
     ).length;
-    if (this.dealer && this.dealer.getStatus() === "playing") {
-      playingSize++;
-    }
     return playingSize !== 0;
   }
 
@@ -46,6 +47,21 @@ class Game {
 
   getPlayer(uid) {
     return this.players.find((player) => player.id === uid);
+  }
+
+  resetGame() {
+    for (const player of this.players) {
+      player.resetFields();
+    }
+    this.deck = new Deck();
+  }
+
+  checkBanks() {
+    this.players.forEach((player, index) => {
+      if (player.getBank() == 0) {
+        this.players.splice(index, 1);
+      }
+    });
   }
 }
 
