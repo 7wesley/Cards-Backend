@@ -66,8 +66,12 @@ class Game {
     });
   }
 
-  async emitPlayersDelay() {
-    this.io.to(this.room).emit("update-hands", this.players);
+  resetCurrTurn() {
+    this.io.to(this.room).emit("curr-turn", "placeholder");
+  }
+
+  async emitPlayersDelay(players) {
+    this.io.to(this.room).emit("update-hands", players);
     await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 }

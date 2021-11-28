@@ -8,68 +8,26 @@ class Player {
   constructor(id) {
     this.id = id;
     this.cards = [];
+    this.deck = [];
     this.status = "playing";
     this.bet = 0;
     this.bank = 0;
-    this.deck = [];
   }
 
   getCards() {
     return this.cards;
   }
 
-  resetCards() {
-    this.cards = [];
-  }
-  /**
-   * Sets the cards field to the card passed in.
-   * @param {*} card - The card to be set
-   */
-  addCards(...cards) {
-    this.cards.push(...cards);
-  }
-
-  setBet(bet) {
-    this.bet = bet;
-    this.bank -= bet;
-  }
-
   getBet() {
     return this.bet;
-  }
-
-  updateBank(amount) {
-    this.bank += amount;
   }
 
   getBank() {
     return this.bank;
   }
 
-  resetFields() {
-    this.bet = 0;
-    this.cards = [];
-    this.status = "playing";
-  }
-
-  /**
-   * Adds cards to the player's backup/win pile
-   * @param {*} card the card to add to the backup
-   */
-  addToDeck(...cards) {
-    this.deck.push(...cards);
-  }
-
   getDeck() {
     return this.deck;
-  }
-
-  /**
-   * Sets the status field to the status passed in.
-   * @param {*} status - The status to be set
-   */
-  setStatus(status) {
-    this.status = status;
   }
 
   /**
@@ -86,6 +44,54 @@ class Player {
    */
   getId() {
     return this.id;
+  }
+
+  setBet(bet) {
+    this.bet = bet;
+    this.bank -= bet;
+  }
+
+  setCard(index, card) {
+    this.cards[index] = card;
+  }
+
+  /**
+   * Sets the status field to the status passed in.
+   * @param {*} status - The status to be set
+   */
+  setStatus(status) {
+    this.status = status;
+  }
+
+  /**
+   * Sets the cards field to the card passed in.
+   * @param {*} card - The card to be set
+   */
+  addCards(...cards) {
+    this.cards.push(...cards);
+  }
+
+  /**
+   * Adds cards to the player's backup/win pile
+   * @param {*} card the card to add to the backup
+   */
+  addToDeck(...cards) {
+    this.deck.push(...cards);
+  }
+
+  resetCards() {
+    this.cards = [];
+  }
+
+  updateBank(amount) {
+    this.bank += amount;
+  }
+
+  resetFields() {
+    this.bet = 0;
+    this.cards = [];
+    this.deck = [];
+    this.status = "playing";
   }
 }
 

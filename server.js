@@ -146,7 +146,7 @@ io.on("connection", (socket) => {
    * on what the game returns.
    * @param {*} room - The room the socket is part of
    */
-  const turn = (room) => {
+  const turn = async (room) => {
     io.to(room).emit("update-hands", getGame(room).displayPlayers());
     io.to(room).emit("timer", 20);
 
@@ -156,7 +156,7 @@ io.on("connection", (socket) => {
 
         io.to(room).emit("curr-turn", player.id);
         if (player instanceof Dealer) {
-          getGame(room).dealerTurn();
+          await getGame(room).dealerTurn();
           turn(room);
         } else {
           turnTimer(room);
@@ -194,7 +194,7 @@ io.on("connection", (socket) => {
    * Takes the choice from a player's move, sets it to the
    * gameChoice variable, and then ends the player's turn.
    */
-  socket.on("player-move", async(choice) => {
+  socket.on("player-move", async (choice) => {
     clearInterval(timers[socket.room]);
     await getGame(socket.room).makeMove(choice);
 

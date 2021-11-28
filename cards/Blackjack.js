@@ -5,6 +5,8 @@
  * @version 5/13/2021
  */
 
+const { cloneDeep } = require("lodash");
+const Card = require("./Card");
 const Dealer = require("./Dealer");
 const Game = require("./Game");
 const Ranks = require("./Ranks");
@@ -12,7 +14,7 @@ const Ranks = require("./Ranks");
 class Blackjack extends Game {
   constructor(io, room, players, bank) {
     super(io, room, players, bank);
-    this.dealer = new Dealer("Blackjack");
+    this.dealer = new Dealer();
     this.turnIndex = 0;
     this.turn = this.players[0];
   }
@@ -67,7 +69,7 @@ class Blackjack extends Game {
 
   getTotal(player) {
     let total = 0;
-    let numAces = player
+    const numAces = player
       .getCards()
       .filter((card) => card.getRank() === Ranks.A).length;
 
@@ -96,9 +98,10 @@ class Blackjack extends Game {
     }
   }
 
-  dealerTurn() {
+  async dealerTurn() {
     if (this.getTotal(this.dealer) < 17) {
       this.makeMove("draw");
+      await super.emitPlayersDelay(this.displayPlayers());
     } else {
       this.makeMove("stand");
     }
@@ -154,8 +157,12 @@ class Blackjack extends Game {
   }
 
   displayPlayers() {
+    let dealer = cloneDeep(this.dealer);
     let players = super.getPlayersFormatted();
-    players.push(this.dealer.toString());
+    if (dealer.getCards().length == 2 && this.turn != this.dealer) {
+      dealer.setCard(1, new Card("H", "H"));
+    }
+    players.push(dealer);
     return players;
   }
 }

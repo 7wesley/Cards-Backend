@@ -5,6 +5,7 @@
  * @version 5/13/2021
  */
 
+const { cloneDeep } = require("lodash");
 const Card = require("./Card");
 const Game = require("./Game");
 const ranks = require("./Ranks");
@@ -14,8 +15,9 @@ class War extends Game {
   constructor(io, room, players, bank) {
     super(io, room, players, bank);
     this.turnIndex = 0;
-    this.turn;
+    this.turn = null;
     this.cardsToWin = [];
+    this.roundEnded = false;
   }
 
   /**
@@ -25,7 +27,7 @@ class War extends Game {
    * drawn from the deck
    */
   initialDeal() {
-    for (let i = 0; i < 26; i++) {
+    for (let i = 0; i < Math.floor(52 / this.players.length); i++) {
       for (const player of this.players) {
         player.addToDeck(this.deck.deal());
       }
@@ -33,23 +35,42 @@ class War extends Game {
   }
 
   /**
-   * Only use this for Debugging War!
+   * Only use this forwhou
+   *  Debugging War!
    *
    * Sets the last card of 2 players to be equal so a tie scenario can be tested
    * @param {*} players the players that are playing the game
    */
   debugWarTie() {
+    this.players[0].cards = [];
+    this.players[1].cards = [];
     this.players[0].addCards(new Card("C", "K"));
     this.players[1].addCards(new Card("C", "K"));
   }
 
   nextTurn() {
+    while (
+      !this.players[this.turnIndex] ||
+      this.players[this.turnIndex].getStatus() !== "playing"
+    ) {
+      this.turnIndex++;
+      if (this.turnIndex >= this.players.length) {
+        this.resetRound();
+      }
+    }
+
     this.turn = this.players[this.turnIndex];
     this.turnIndex++;
     if (this.turnIndex >= this.players.length) {
-      this.turnIndex = 0;
+      this.resetRound();
     }
+
     return this.turn;
+  }
+
+  resetRound() {
+    this.roundEnded = true;
+    this.turnIndex = 0;
   }
 
   /**
@@ -58,7 +79,11 @@ class War extends Game {
    * @returns true if all plays have moved this turn, false otherwise
    */
   allPlayersMoved() {
-    return this.turnIndex === 0;
+    if (this.roundEnded) {
+      this.roundEnded = false;
+      return true;
+    }
+    return false;
   }
 
   /**
@@ -74,10 +99,11 @@ class War extends Game {
       this.cardsToWin.push(topCard);
       this.turn.addCards(topCard);
     } else if (choice === "forfeit") {
-      super.removePlayer(this.turn.getId());
+      this.turn.setStatus("busted");
     }
     if (this.allPlayersMoved()) {
-      await super.emitPlayersDelay();
+      super.resetCurrTurn();
+      await super.emitPlayersDelay(this.displayPlayers());
       await this.handleRound();
     }
   }
@@ -93,7 +119,7 @@ class War extends Game {
     for (const player of this.players) {
       player.resetCards();
       if (player.getDeck().length === 0) {
-        player.setStatus("lost");
+        player.setStatus("busted");
       }
     }
     this.cardsToWin = [];
@@ -139,12 +165,13 @@ class War extends Game {
 
     for (const player of tiedPlayers) {
       if (player.getDeck().length < 4) {
-        player.setStatus("lost");
+        player.setStatus("busted");
+        this.cardsToWin = this.cardsToWin.concat(player.getDeck);
       } else {
         const topCards = player.getDeck().splice(0, 4);
         this.cardsToWin = this.cardsToWin.concat(topCards);
         player.addCards(...topCards);
-        await super.emitPlayersDelay();
+        await super.emitPlayersDelay(this.displayPlayers());
       }
     }
 
@@ -160,11 +187,23 @@ class War extends Game {
   }
 
   displayPlayers() {
-    return this.players;
+    let players = cloneDeep(this.players);
+    for (const player of players) {
+      if (player.getCards().length >= 5) {
+        for (let i = 0; i < player.getCards().length; i++) {
+          if (!(i % 4 == 0)) {
+            player.setCard(i, new Card("H", "H"));
+          }
+        }
+      }
+    }
+    return players;
   }
 
   inProgress() {
-    let activePlayers = this.players.filter((p) => p.getStatus() != "lost");
+    let activePlayers = this.players.filter(
+      (player) => player.getStatus() == "playing"
+    );
     return activePlayers.length > 1;
   }
 
@@ -173,6 +212,12 @@ class War extends Game {
       (player) => player.getStatus() == "playing"
     );
     return { winners: winners };
+  }
+
+  resetGame() {
+    super.resetGame();
+    this.turn = null;
+    this.turnIndex = 0;
   }
 }
 
