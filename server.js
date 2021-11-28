@@ -15,7 +15,6 @@ const io = require("socket.io")(server);
 var GameLogic = require("./gameLogic");
 const Blackjack = require("./cards/Blackjack");
 const War = require("./cards/War");
-const Player = require("./cards/Player");
 const Dealer = require("./cards/Dealer");
 var logic = new GameLogic(io);
 
@@ -35,9 +34,8 @@ io.on("connection", (socket) => {
       await db.removePlayer(room, socket.uid);
       if (getGame(room) && getGame(room).inProgress()) {
         getGame(room).removePlayer(socket.uid);
-        //Refresh hands after player leaves
         io.to(room).emit("update-hands", getGame(room).displayPlayers());
-        //Only go to the next turn if current turn user == disconnected user
+
         if (getGame(room).isTurn(socket.uid)) {
           clearInterval[room][socket.id];
         }
@@ -78,9 +76,9 @@ io.on("connection", (socket) => {
     let game;
 
     if (socket.game == "Blackjack") {
-      game = new Blackjack(playerList, bank);
+      game = new Blackjack(io, room, playerList, bank);
     } else {
-      game = new War(playerList);
+      game = new War(io, room, playerList, bank);
     }
     getRoom(room).game = game;
     io.to(room).emit("update-hands", game.displayPlayers());
@@ -149,17 +147,12 @@ io.on("connection", (socket) => {
    * @param {*} room - The room the socket is part of
    */
   const turn = (room) => {
-    io.to(socket.room).emit("update-hands", getGame(room).displayPlayers());
+    io.to(room).emit("update-hands", getGame(room).displayPlayers());
     io.to(room).emit("timer", 20);
 
     if (getGame(room).inProgress()) {
       try {
         let player = getGame(room).nextTurn();
-        /*
-        if (player.getLastCardFlipped() != null) {
-          await gameHandler(match[player.id], game);
-        }
-        */
 
         io.to(room).emit("curr-turn", player.id);
         if (player instanceof Dealer) {
@@ -201,30 +194,12 @@ io.on("connection", (socket) => {
    * Takes the choice from a player's move, sets it to the
    * gameChoice variable, and then ends the player's turn.
    */
-  socket.on("player-move", (choice) => {
-    getGame(socket.room).makeMove(choice);
+  socket.on("player-move", async(choice) => {
     clearInterval(timers[socket.room]);
+    await getGame(socket.room).makeMove(choice);
 
     turn(socket.room);
   });
-
-  /**
-   * Determines what the current game is and then calls the
-   * appropriate method from the gameLogic instance.
-   * @param {*} id - The socket id of the current turn
-   * @param {*} game - The game instance of the current room
-   */
-  const gameHandler = async (id, game) => {
-    const currSocket = io.sockets.sockets.get(id);
-    switch (currSocket.game) {
-      case "Blackjack":
-        await logic.blackjack(currSocket, game);
-        break;
-      case "War":
-        await logic.war(currSocket, game);
-        break;
-    }
-  };
 
   /**
    * Creates a countdown timer for each socket in the room and
@@ -254,11 +229,6 @@ io.on("connection", (socket) => {
 
   const getGame = (room) => {
     return io.sockets.adapter.rooms.get(room).game;
-  };
-
-  const getSocket = (uid, room) => {
-    for (const client of io.sockets.adapter.rooms.get(room))
-      return io.sockets.sockets.get(client);
   };
 });
 

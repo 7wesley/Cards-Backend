@@ -9,7 +9,9 @@ var Deck = require("./Deck");
 var Player = require("./Player");
 
 class Game {
-  constructor(players, bank) {
+  constructor(io, room, players, bank) {
+    this.io = io;
+    this.room = room;
     this.players = [];
     this.deck = new Deck();
     this.turn = null;
@@ -62,6 +64,11 @@ class Game {
         this.players.splice(index, 1);
       }
     });
+  }
+
+  async emitPlayersDelay() {
+    this.io.to(this.room).emit("update-hands", this.players);
+    await new Promise((resolve) => setTimeout(resolve, 1000));
   }
 }
 

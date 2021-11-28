@@ -22,8 +22,8 @@ class Dealer {
     this.hideCards = false;
   }
 
-  addCard(card) {
-    this.cards.push(card);
+  addCards(...cards) {
+    this.cards.push(...cards);
   }
 
   toString() {

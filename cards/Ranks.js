@@ -4,8 +4,8 @@
  * @author Wesley Miller
  * @version 5/13/2021
  */
-const Ranks = {
-  A: 11,
+const ranks = {
+  A: 1,
   K: 10,
   Q: 10,
   J: 10,
@@ -20,4 +20,4 @@ const Ranks = {
   10: 10,
 };
 
-module.exports = Ranks;
+module.exports = ranks;

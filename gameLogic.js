@@ -18,21 +18,6 @@ module.exports = class GameLogic {
    * @param {*} socket - The current turn's socket
    * @param {*} game - The game instance of the current room
    */
-  async blackjack(socket, game) {
-    if (game.getPlayer(socket.uid).getStatus() === "busted") {
-      await this.removePlayer(socket, game, `${socket.uid} Busts!`);
-    } else if (game.getPlayer(socket.uid).getStatus() === "standing") {
-      await this.alert(socket, `${socket.uid} Stands!`);
-    }
-    this.io.to(socket.room).emit("update-hands", game.displayPlayers());
-  }
-
-  /**
-   * Checks the status of the socket passed in using the room's game
-   * instance and then emits the appropriate message to the socket.
-   * @param {*} socket - The current turn's socket
-   * @param {*} game - The game instance of the current room
-   */
   async war(socket, game) {
     if (game.getPlayer(socket.uid).getStatus() === "busted") {
       await this.removePlayer(socket, game, `${socket.uid} Busts!`);

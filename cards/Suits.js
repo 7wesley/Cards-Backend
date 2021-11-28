@@ -1,8 +1,8 @@
-const Suits = {
+const suits = {
   H: "H",
   S: "S",
   C: "C",
   D: "D",
 };
 
-module.exports = Suits;
+module.exports = suits;

@@ -10,8 +10,8 @@ const Game = require("./Game");
 const Ranks = require("./Ranks");
 
 class Blackjack extends Game {
-  constructor(players, bank) {
-    super(players, bank);
+  constructor(io, room, players, bank) {
+    super(io, room, players, bank);
     this.dealer = new Dealer("Blackjack");
     this.turnIndex = 0;
     this.turn = this.players[0];
@@ -25,9 +25,9 @@ class Blackjack extends Game {
   initialDeal() {
     for (let i = 0; i < 2; i++) {
       for (const player of this.players) {
-        player.addCard(this.deck.deal());
+        player.addCards(this.deck.deal());
       }
-      this.dealer.addCard(this.deck.deal());
+      this.dealer.addCards(this.deck.deal());
     }
   }
 
@@ -55,7 +55,7 @@ class Blackjack extends Game {
    */
   dealCard() {
     const card = this.deck.deal();
-    this.turn.addCard(card);
+    this.turn.addCards(card);
 
     let total = this.getTotal(this.turn);
     if (total == 21) {
@@ -69,7 +69,7 @@ class Blackjack extends Game {
     let total = 0;
     let numAces = player
       .getCards()
-      .filter((card) => card.getValue() === Ranks.A).length;
+      .filter((card) => card.getRank() === Ranks.A).length;
 
     for (const card of player.getCards()) {
       total += card.getValue();
@@ -138,7 +138,7 @@ class Blackjack extends Game {
       }
       return false;
     });
-    
+
     return { winners: winners.length ? winners : [this.dealer] };
   }
 

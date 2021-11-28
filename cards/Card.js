@@ -5,7 +5,7 @@
  * @version 5/13/2021
  */
 
-let Ranks = require("./Ranks");
+let ranks = require("./Ranks");
 
 /**
  * Represents a single card in a deck.
@@ -14,7 +14,7 @@ class Card {
   constructor(suit, rank) {
     this.suit = suit;
     this.rank = rank;
-    this.value = Ranks[rank];
+    this.value = ranks[rank];
   }
 
   getValue() {
