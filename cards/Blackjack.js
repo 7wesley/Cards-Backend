@@ -9,7 +9,6 @@ const { cloneDeep } = require("lodash");
 const Card = require("./Card");
 const Dealer = require("./Dealer");
 const Game = require("./Game");
-const Ranks = require("./Ranks");
 
 class Blackjack extends Game {
   constructor(io, room, players, bank) {
@@ -71,7 +70,7 @@ class Blackjack extends Game {
     let total = 0;
     const numAces = player
       .getCards()
-      .filter((card) => card.getRank() === Ranks.A).length;
+      .filter((card) => card.getRank() === "A").length;
 
     for (const card of player.getCards()) {
       total += card.getValue();
@@ -158,7 +157,7 @@ class Blackjack extends Game {
 
   displayPlayers() {
     let dealer = cloneDeep(this.dealer);
-    let players = super.getPlayersFormatted();
+    let players = cloneDeep(this.players);
     if (dealer.getCards().length == 2 && this.turn != this.dealer) {
       dealer.setCard(1, new Card("H", "H"));
     }

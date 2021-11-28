@@ -55,6 +55,6 @@ class Deck {
     }
     return total;
   }
-};
+}
 
 module.exports = Deck;

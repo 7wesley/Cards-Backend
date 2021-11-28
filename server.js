@@ -12,11 +12,9 @@ var express = require("express");
 var app = express();
 var server = app.listen(5000);
 const io = require("socket.io")(server);
-var GameLogic = require("./gameLogic");
 const Blackjack = require("./cards/Blackjack");
 const War = require("./cards/War");
 const Dealer = require("./cards/Dealer");
-var logic = new GameLogic(io);
 
 var timers = {};
 
@@ -80,6 +78,7 @@ io.on("connection", (socket) => {
     } else {
       game = new War(io, room, playerList, bank);
     }
+
     getRoom(room).game = game;
     io.to(room).emit("update-hands", game.displayPlayers());
     getBets(room);
@@ -128,8 +127,9 @@ io.on("connection", (socket) => {
    * timer has reached 0.
    * @param {*} room - The room the socket is part of
    */
+  /*
   const countdown = (room) => {
-    var seconds = 1;
+    var seconds = 3;
     var gameCountdown = setInterval(() => {
       io.to(room).emit("countdown", seconds);
       seconds--;
@@ -139,6 +139,7 @@ io.on("connection", (socket) => {
       }
     }, 1000);
   };
+  */
 
   /**
    * Asks the room's game object who's turn it is and emits
@@ -210,7 +211,7 @@ io.on("connection", (socket) => {
   const handleGameEnd = async (room) => {
     io.to(room).emit("results", getGame(room).getResults());
     await new Promise((resolve) => setTimeout(resolve, 4000));
-    getGame(room).checkBanks();
+    getGame(room).filterBanks();
 
     //Reset values
     io.to(room).emit("curr-turn", null);

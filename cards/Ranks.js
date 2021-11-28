@@ -5,7 +5,7 @@
  * @version 5/13/2021
  */
 const ranks = {
-  A: 1,
+  A: 11,
   K: 10,
   Q: 10,
   J: 10,

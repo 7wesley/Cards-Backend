@@ -28,14 +28,6 @@ class Game {
     this.players = this.players.filter((player) => player.id !== uid);
   }
 
-  getPlayersFormatted() {
-    let players = [];
-    for (const player of this.players) {
-      players.push(player);
-    }
-    return players;
-  }
-
   inProgress() {
     let playingSize = this.players.filter(
       (player) => player.getStatus() === "playing"
@@ -48,7 +40,7 @@ class Game {
   }
 
   getPlayer(uid) {
-    return this.players.find((player) => player.id === uid);
+    return this.players.find((player) => player.getId() === uid);
   }
 
   resetGame() {
@@ -58,7 +50,7 @@ class Game {
     this.deck = new Deck();
   }
 
-  checkBanks() {
+  filterBanks() {
     this.players.forEach((player, index) => {
       if (player.getBank() == 0) {
         this.players.splice(index, 1);

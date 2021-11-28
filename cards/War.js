@@ -8,8 +8,6 @@
 const { cloneDeep } = require("lodash");
 const Card = require("./Card");
 const Game = require("./Game");
-const ranks = require("./Ranks");
-const Ranks = require("./Ranks");
 
 class War extends Game {
   constructor(io, room, players, bank) {
@@ -166,7 +164,7 @@ class War extends Game {
     for (const player of tiedPlayers) {
       if (player.getDeck().length < 4) {
         player.setStatus("busted");
-        this.cardsToWin = this.cardsToWin.concat(player.getDeck);
+        this.cardsToWin = this.cardsToWin.concat(player.getDeck());
       } else {
         const topCards = player.getDeck().splice(0, 4);
         this.cardsToWin = this.cardsToWin.concat(topCards);
@@ -208,10 +206,9 @@ class War extends Game {
   }
 
   getResults() {
-    let winners = this.players.filter(
-      (player) => player.getStatus() == "playing"
-    );
-    return { winners: winners };
+    let winner = this.players.find((player) => player.getStatus() == "playing");
+    winner.updateBank(winner.getBet() * 2);
+    return { winners: [winner] };
   }
 
   resetGame() {

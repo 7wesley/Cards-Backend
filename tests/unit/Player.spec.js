@@ -16,10 +16,6 @@ describe("Player tests", () => {
     expect(player.getStatus()).toBe("playing");
   });
 
-  it("Initial total is 0", () => {
-    expect(player.getTotal()).toBe(0);
-  });
-
   it("Set status updates status field", () => {
     player.setStatus("testing");
     expect(player.getStatus()).toBe("testing");
