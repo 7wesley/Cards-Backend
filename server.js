@@ -17,6 +17,7 @@ const War = require("./cards/War");
 const Dealer = require("./cards/Dealer");
 
 var timers = {};
+var chatMsgs = {};
 
 io.on("connection", (socket) => {
   /**
@@ -50,6 +51,7 @@ io.on("connection", (socket) => {
    * @param {*} uid - The uid of the socket that has just joined the room
    */
   socket.on("join", async (room, uid) => {
+    chatMsgs[room] = [];
     console.log(`Socket ${socket.id} joining ${room}`);
     socket.join(room);
     await db.addPlayer(room, uid);
@@ -200,6 +202,21 @@ io.on("connection", (socket) => {
     await getGame(socket.room).makeMove(choice);
 
     turn(socket.room);
+  });
+
+  /**
+   * Gets a chat that was sent from some player and sends it to all the other
+   *  players in that game
+   */
+  socket.on("send-message", async (msg) => {
+    // console.log("Received message: "+msg.name+" "+msg.msg)
+    chatMsgs[socket.room].push(msg);
+
+    // console.log("printing chatmsgs: ")
+    // console.log(chatMsgs)
+    // console.log("printing chatmsgs.roomid: ")
+    // console.log(chatMsgs[roomId])
+    io.to(socket.room).emit("updateChat", chatMsgs[socket.room]);
   });
 
   /**
