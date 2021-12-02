@@ -29,6 +29,7 @@ io.on("connection", (socket) => {
 
     if (!getRoom(room)) {
       await db.deleteRoom(room);
+      chatMsgs[room] = [];
     } else {
       await db.removePlayer(room, socket.uid);
       if (getGame(room) && getGame(room).inProgress()) {
@@ -209,9 +210,7 @@ io.on("connection", (socket) => {
    *  players in that game
    */
   socket.on("send-message", async (msg) => {
-    // console.log("Received message: "+msg.name+" "+msg.msg)
     chatMsgs[socket.room].push(msg);
-
     // console.log("printing chatmsgs: ")
     // console.log(chatMsgs)
     // console.log("printing chatmsgs.roomid: ")
