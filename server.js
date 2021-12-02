@@ -52,14 +52,18 @@ io.on("connection", (socket) => {
   socket.on("join", async (room, uid) => {
     console.log(`Socket ${socket.id} joining ${room}`);
     socket.join(room);
-    await db.addPlayer(room, uid);
+    try {
+      await db.addPlayer(room, uid);
 
-    socket.room = room;
-    socket.uid = uid;
-    socket.game = await db.queryGame(room);
+      socket.room = room;
+      socket.uid = uid;
+      socket.game = await db.queryGame(room);
 
-    if (await db.checkFull(room)) {
-      start(room);
+      if (await db.checkFull(room)) {
+        start(room);
+      }
+    } catch (e) {
+      console.log(e);
     }
   });
 

@@ -35,10 +35,7 @@ module.exports = {
    */
   checkFull: async (roomId) => {
     var roomDoc = await db.collection("rooms").doc(roomId).get();
-    if (
-      roomDoc.data() &&
-      roomDoc.data().players.length == roomDoc.data().maxPlayers
-    ) {
+    if (roomDoc.data().players.length == roomDoc.data().maxPlayers) {
       await db.collection("rooms").doc(roomId).update({
         status: "in-progress",
       });
