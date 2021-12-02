@@ -17,7 +17,6 @@ const War = require("./cards/War");
 const Dealer = require("./cards/Dealer");
 
 var timers = {};
-var chatMsgs = {};
 
 io.on("connection", (socket) => {
   /**
@@ -29,7 +28,6 @@ io.on("connection", (socket) => {
 
     if (!getRoom(room)) {
       await db.deleteRoom(room);
-      chatMsgs[room] = [];
     } else {
       await db.removePlayer(room, socket.uid);
       if (getGame(room) && getGame(room).inProgress()) {
@@ -52,7 +50,6 @@ io.on("connection", (socket) => {
    * @param {*} uid - The uid of the socket that has just joined the room
    */
   socket.on("join", async (room, uid) => {
-    chatMsgs[room] = [];
     console.log(`Socket ${socket.id} joining ${room}`);
     socket.join(room);
     await db.addPlayer(room, uid);
@@ -210,12 +207,7 @@ io.on("connection", (socket) => {
    *  players in that game
    */
   socket.on("send-message", async (msg) => {
-    chatMsgs[socket.room].push(msg);
-    // console.log("printing chatmsgs: ")
-    // console.log(chatMsgs)
-    // console.log("printing chatmsgs.roomid: ")
-    // console.log(chatMsgs[roomId])
-    io.to(socket.room).emit("updateChat", chatMsgs[socket.room]);
+    socket.broadcast.to(socket.room).emit("chat-message", msg);
   });
 
   /**
