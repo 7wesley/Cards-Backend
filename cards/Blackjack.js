@@ -15,7 +15,7 @@ class Blackjack extends Game {
     super(io, room, players, bank);
     this.dealer = new Dealer();
     this.turnIndex = 0;
-    this.turn = this.players[0];
+    this.turn = null;
   }
 
   /**
@@ -30,6 +30,7 @@ class Blackjack extends Game {
       }
       this.dealer.addCards(this.deck.deal());
     }
+    this.turn = this.players[0];
   }
 
   /**
@@ -98,12 +99,13 @@ class Blackjack extends Game {
   }
 
   async dealerTurn() {
+    await new Promise((resolve) => setTimeout(resolve, 500));
     if (this.getTotal(this.dealer) < 17) {
       this.makeMove("draw");
-      await super.emitPlayersDelay(this.displayPlayers());
     } else {
       this.makeMove("stand");
     }
+    await super.emitPlayersDelay(this.displayPlayers());
   }
 
   defaultMove() {
@@ -151,7 +153,7 @@ class Blackjack extends Game {
   resetGame() {
     super.resetGame();
     this.dealer = new Dealer("Blackjack");
-    this.turn = this.players[0];
+    this.turn = null;
     this.turnIndex = 0;
   }
 

@@ -35,10 +35,6 @@ class Game {
     return playingSize !== 0;
   }
 
-  isTurn(uid) {
-    return this.turn.getId() === uid;
-  }
-
   getPlayer(uid) {
     return this.players.find((player) => player.getId() === uid);
   }
