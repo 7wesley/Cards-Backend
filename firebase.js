@@ -23,5 +23,4 @@ module.exports = {
   timestamp: firebase.firestore.FieldValue.serverTimestamp,
   increment: firebase.firestore.FieldValue.increment,
   del: firebase.firestore.FieldValue.delete,
-  arrayUnion: firebase.firestore.FieldValue.arrayUnion,
 };

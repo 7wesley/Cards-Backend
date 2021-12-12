@@ -60,11 +60,11 @@ io.on("connection", (socket) => {
    * @param {*} room - The room the socket is part of
    * @param {*} uid - The uid of the socket that has just joined the room
    */
-  socket.on("join", async (room, uid) => {
+  socket.on("join", async (room, uid, image) => {
     console.log(`Socket ${socket.id} joining ${room}`);
     try {
       socket.join(room);
-      await db.addPlayer(room, uid);
+      await db.addPlayer(room, uid, image);
 
       socket.room = room;
       socket.uid = uid;

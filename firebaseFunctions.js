@@ -4,19 +4,22 @@
  * @author Wesley Miller
  * @version 5/13/2021
  */
-var { db, del, arrayUnion } = require("./firebase");
+var { db, del } = require("./firebase");
 module.exports = {
   /**
    * Adds a player to a room in the database.
    * @param {*} roomId - The room to add the player to
    * @param {*} uid - The uid of the player being added
    */
-  addPlayer: async (roomId, uid) => {
+  addPlayer: async (roomId, uid, image) => {
     await db
       .collection("rooms")
       .doc(roomId)
       .update({
-        players: arrayUnion(uid),
+        ["players." + uid]: {
+          username: uid,
+          image,
+        },
       });
   },
 
@@ -35,7 +38,9 @@ module.exports = {
    */
   checkFull: async (roomId) => {
     var roomDoc = await db.collection("rooms").doc(roomId).get();
-    if (roomDoc.data().players.length == roomDoc.data().maxPlayers) {
+    if (
+      Object.keys(roomDoc.data().players).length == roomDoc.data().maxPlayers
+    ) {
       await db.collection("rooms").doc(roomId).update({
         status: "in-progress",
       });

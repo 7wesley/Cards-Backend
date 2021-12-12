@@ -2,7 +2,8 @@ const Player = require("./Player");
 
 class Dealer extends Player {
   constructor() {
-    super("Dealer");
+    const image = "/Images/Dealer.png";
+    super("Dealer", image);
   }
 }
 

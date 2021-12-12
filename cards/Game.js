@@ -15,10 +15,9 @@ class Game {
     this.players = [];
     this.deck = new Deck();
     this.turn = null;
-    let player;
 
-    for (const playerName of players) {
-      player = new Player(playerName);
+    for (let player of Object.values(players)) {
+      player = new Player(player.username, player.image);
       player.updateBank(bank);
       this.players.push(player);
     }

@@ -5,8 +5,9 @@
  * @version 5/13/2021
  */
 class Player {
-  constructor(id) {
+  constructor(id, image) {
     this.id = id;
+    this.image = image;
     this.cards = [];
     this.deck = [];
     this.status = "playing";
