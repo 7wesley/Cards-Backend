@@ -99,13 +99,15 @@ class Blackjack extends Game {
   }
 
   async dealerTurn() {
-    await new Promise((resolve) => setTimeout(resolve, 500));
+    if (this.dealer.getCards().length == 2) {
+      await super.emitPlayers(this.displayPlayers(), 700);
+    }
     if (this.getTotal(this.dealer) < 17) {
       this.makeMove("draw");
     } else {
       this.makeMove("stand");
     }
-    await super.emitPlayersDelay(this.displayPlayers());
+    await super.emitPlayers(this.displayPlayers(), 700);
   }
 
   defaultMove() {
@@ -127,11 +129,12 @@ class Blackjack extends Game {
    * @returns - The this.players who won
    */
   getResults() {
+    const prompt = "👑 Winners 👑";
     const players = this.players.filter(
       (player) => player.getStatus() !== "busted"
     );
     if (this.dealer.getStatus() === "busted" && players.length) {
-      return { prompt: "Dealer busted!", winners: players };
+      return { prompt, winners: players };
     }
 
     const dealerTotal = this.getTotal(this.dealer);
@@ -143,7 +146,7 @@ class Blackjack extends Game {
       return false;
     });
 
-    return { winners: winners.length ? winners : [this.dealer] };
+    return { prompt, winners: winners.length ? winners : [this.dealer] };
   }
 
   inProgress() {

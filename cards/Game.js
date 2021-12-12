@@ -46,21 +46,31 @@ class Game {
     this.deck = new Deck();
   }
 
-  filterBanks() {
-    this.players.forEach((player, index) => {
-      if (player.getBank() == 0) {
-        this.players.splice(index, 1);
+  async filterBanks() {
+    const sockets = await this.io.in(this.room).fetchSockets();
+
+    for (const socket of sockets) {
+      const player = this.players.find((p) => p.id === socket.uid);
+      if (player.getBank() === 0) {
+        this.players = this.players.filter((p) => p.id !== socket.uid);
+        socket.leave(this.room);
       }
-    });
+    }
   }
 
   resetCurrTurn() {
     this.io.to(this.room).emit("curr-turn", "placeholder");
   }
 
-  async emitPlayersDelay(players) {
+  async emitPlayers(players, time = 0) {
     this.io.to(this.room).emit("update-hands", players);
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, time));
+  }
+
+  async emitResults(players, prompt = "", time = 0) {
+    this.io.to(this.room).emit("results", { prompt: prompt, winners: players });
+    await new Promise((resolve) => setTimeout(resolve, time));
+    this.io.to(this.room).emit("results", null);
   }
 }
 

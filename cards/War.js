@@ -32,20 +32,6 @@ class War extends Game {
     }
   }
 
-  /**
-   * Only use this forwhou
-   *  Debugging War!
-   *
-   * Sets the last card of 2 players to be equal so a tie scenario can be tested
-   * @param {*} players the players that are playing the game
-   */
-  debugWarTie() {
-    this.players[0].cards = [];
-    this.players[1].cards = [];
-    this.players[0].addCards(new Card("C", "K"));
-    this.players[1].addCards(new Card("C", "K"));
-  }
-
   nextTurn() {
     while (
       !this.players[this.turnIndex] ||
@@ -101,7 +87,7 @@ class War extends Game {
     }
     if (this.allPlayersMoved()) {
       super.resetCurrTurn();
-      await super.emitPlayersDelay(this.displayPlayers());
+      await super.emitPlayers(this.displayPlayers(), 500);
       await this.handleRound();
     }
   }
@@ -113,6 +99,7 @@ class War extends Game {
     }
     if (winners.length == 1) {
       winners[0].addToDeck(...this.cardsToWin);
+      await super.emitResults(winners, "👑 Round winner 👑", 1500);
     }
     for (const player of this.players) {
       player.resetCards();
@@ -169,8 +156,8 @@ class War extends Game {
         const topCards = player.getDeck().splice(0, 4);
         this.cardsToWin = this.cardsToWin.concat(topCards);
         player.addCards(...topCards);
-        await super.emitPlayersDelay(this.displayPlayers());
       }
+      await super.emitPlayers(this.displayPlayers(), 750);
     }
 
     winningPlayers = this.findWinningPlayers(tiedPlayers);
@@ -206,9 +193,10 @@ class War extends Game {
   }
 
   getResults() {
+    const prompt = "👑 Winners 👑";
     let winner = this.players.find((player) => player.getStatus() == "playing");
     winner.updateBank(winner.getBet() * 2);
-    return { winners: [winner] };
+    return { prompt, winners: [winner] };
   }
 
   resetGame() {
