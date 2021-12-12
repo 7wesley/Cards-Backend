@@ -2,16 +2,18 @@
  * Manages a deck of cards
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 12/12/2021
  */
 
 var Card = require("./Card");
 const suits = require("./Suits");
 const ranks = require("./Ranks");
-/**
- * Represents a deck of cards
- */
+
 class Deck {
+  /**
+   * Represents a deck of cards
+   * @constructor
+   */
   constructor() {
     this.cards = [];
     for (const suit in suits) {

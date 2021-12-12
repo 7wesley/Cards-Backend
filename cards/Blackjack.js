@@ -2,7 +2,7 @@
  * Creates and manages a game of Blackjack
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 12/12/2021
  */
 
 const { cloneDeep } = require("lodash");
@@ -11,6 +11,10 @@ const Dealer = require("./Dealer");
 const Game = require("./Game");
 
 class Blackjack extends Game {
+  /**
+   * Represents the logic for a game of blackjack
+   * @constructor
+   */
   constructor(io, room, players, bank) {
     super(io, room, players, bank);
     this.dealer = new Dealer();
@@ -19,9 +23,7 @@ class Blackjack extends Game {
   }
 
   /**
-   * The initial dealing of the cards. Deals one card at a time.
-   * @returns - The player that was dealt to and the card that was
-   * drawn from the deck
+   * The initial dealing of the cards
    */
   initialDeal() {
     for (let i = 0; i < 2; i++) {
@@ -34,10 +36,9 @@ class Blackjack extends Game {
   }
 
   /**
-   * Determines who's turn it currently is and uses that
-   * information to get the next player's turn and return it.
-   * @param {*} this.players - The this.players currently in the game
-   * @returns - The numeric representation of who's turn it is
+   * Determines whose turn is next by looking at a player's
+   * status
+   * @returns - The player whose turn it is
    */
   nextTurn() {
     if (!this.turn || this.turn.getStatus() !== "playing") {
@@ -53,20 +54,23 @@ class Blackjack extends Game {
 
   /**
    * Gets the next card from the top of the deck and
-   * deals it to the user who's turn it currently is.
+   * deals it to the user whose turn it currently is.
    */
   dealCard() {
     const card = this.deck.deal();
     this.turn.addCards(card);
 
     let total = this.getTotal(this.turn);
-    if (total == 21) {
-      this.turn.setStatus("blackjack");
-    } else if (total > 21) {
+    if (total > 21) {
       this.turn.setStatus("busted");
     }
   }
 
+  /**
+   * Gets the actual value of a players hand
+   * @param {*} player - The player having their hand total checked
+   * @returns - The player's actual hand value
+   */
   getTotal(player) {
     let total = 0;
     const numAces = player
@@ -98,6 +102,10 @@ class Blackjack extends Game {
     }
   }
 
+  /**
+   * Logic for determining whether a dealer draws or stands
+   * with their current hand. If total < 17, draw, else stand.
+   */
   async dealerTurn() {
     if (this.dealer.getCards().length == 2) {
       await super.emitPlayers(this.displayPlayers(), 700);
@@ -110,6 +118,9 @@ class Blackjack extends Game {
     await super.emitPlayers(this.displayPlayers(), 700);
   }
 
+  /**
+   * The default move made if a player does not make a choice
+   */
   defaultMove() {
     this.makeMove("stand");
   }
@@ -123,10 +134,9 @@ class Blackjack extends Game {
   }
 
   /**
-   * Searches for users who haven't busted and have the highest card total
-   * of all users. In the event of a tie, multiple users can be returned
-   * @param {*} this.players - The this.players currently part of the game
-   * @returns - The this.players who won
+   * Searches for users who haven't busted and have a card total higher
+   * than the dealer and updates their bank
+   * @returns - The players or dealer who won
    */
   getResults() {
     const prompt = "👑 Winners 👑";
@@ -149,10 +159,18 @@ class Blackjack extends Game {
     return { prompt, winners: winners.length ? winners : [this.dealer] };
   }
 
+  /**
+   * Determines if the game still in progress
+   * @returns - true if there are players remaining with
+   * a "playing" status
+   */
   inProgress() {
     return super.inProgress() || this.dealer.getStatus() === "playing";
   }
 
+  /**
+   * Resets the game so it can be played from the start again
+   */
   resetGame() {
     super.resetGame();
     this.dealer = new Dealer("Blackjack");
@@ -160,6 +178,11 @@ class Blackjack extends Game {
     this.turnIndex = 0;
   }
 
+  /**
+   * Formats the players for being displayed to the client side.
+   * Hides the dealer's cards if necessary
+   * @returns - The formatted players
+   */
   displayPlayers() {
     let dealer = cloneDeep(this.dealer);
     let players = cloneDeep(this.players);

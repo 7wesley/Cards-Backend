@@ -1,8 +1,8 @@
 /**
- * The functions that can be
+ * Useful firebase functions
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 12/12/2021
  */
 var { db, del } = require("./firebase");
 module.exports = {
@@ -64,10 +64,10 @@ module.exports = {
   },
 
   /**
-   * Gets a list of all the players in a room.
-   * @param {*} roomId - The room who's player list will be queried
-   * @returns The player list, otherwise null if the room is deleted
-   * during the query process
+   * Queries a room for a specific data field
+   * @param {*} roomId - The room to be queried
+   * @param {*} data - The name of the data field
+   * @returns
    */
   queryRoom: async (roomId, data) => {
     try {

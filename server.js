@@ -1,10 +1,9 @@
 /**
- * Handles what happens for each gameroom. This includes starting a match,
- *  connecting a player to the gameroom, disconnecting them, and finding
- *  which player's turn it is to move.
+ * Server logic for handling sockets joining, starting,
+ * and leaving games.
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 12/12/2021
  */
 
 var db = require("./firebaseFunctions");
@@ -20,8 +19,78 @@ var timers = {};
 
 io.on("connection", (socket) => {
   /**
-   * Checks if the room the socket was apart of has 0 players.
-   * If so, the room is deleted, else, the player is removed.
+   * Listens for a new socket connection and then adds them
+   * to the room.
+   * @param {*} room - The room of the socket
+   * @param {*} uid - The uid of the socket
+   * @param {*} image - The image of the socket
+   */
+  socket.on("join", async (room, uid, image) => {
+    console.log(`Socket ${socket.id} joining ${room}`);
+    try {
+      socket.join(room);
+      await db.addPlayer(room, uid, image);
+
+      socket.room = room;
+      socket.uid = uid;
+      socket.game = await db.queryGame(room);
+
+      if (await db.checkFull(room)) {
+        start(room);
+      }
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  /**
+   * Listens for a socket's bet. Their timer is then
+   * subsequently cleared and the game is updated with their bet.
+   * @param {*} bet - The bet the socket makes
+   */
+  socket.on("player-bet", (bet) => {
+    const game = getGame(socket.room);
+    try {
+      game.getPlayer(socket.uid).setBet(bet);
+
+      clearInterval(timers[socket.room][socket.id]);
+      delete timers[socket.room][socket.id];
+      io.to(socket.room).emit("update-hands", game.displayPlayers());
+
+      startGame(socket.room);
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  /**
+   * Listens for a socket's move. Their timer is then
+   * subsequently cleared, a move is made in the game with their
+   * choice, and the next turn is started.
+   * @param {*} choice - The choice the socket makes
+   */
+  socket.on("player-move", async (choice) => {
+    try {
+      clearInterval(timers[socket.room]);
+      await getGame(socket.room).makeMove(choice);
+      turn(socket.room);
+    } catch (e) {
+      console.log(e);
+    }
+  });
+
+  /**
+   * Listens for a chat message from a socket and then emits it
+   * to all the other sockets in the room
+   * @param {*} msg - The message the socket sent
+   */
+  socket.on("send-message", async (msg) => {
+    socket.broadcast.to(socket.room).emit("chat-message", msg);
+  });
+
+  /**
+   * Listens for a socket disconnecting. If they are no players in the room
+   * after they disconnect, the room is deleted from the database.
    */
   socket.on("disconnect", async () => {
     const room = socket.room;
@@ -54,33 +123,8 @@ io.on("connection", (socket) => {
   });
 
   /**
-   * Every time a new socket is connected, it is added to
-   * the room that is passed in. If the room has met its player
-   * quota, the countdown function will be called.
-   * @param {*} room - The room the socket is part of
-   * @param {*} uid - The uid of the socket that has just joined the room
-   */
-  socket.on("join", async (room, uid, image) => {
-    console.log(`Socket ${socket.id} joining ${room}`);
-    try {
-      socket.join(room);
-      await db.addPlayer(room, uid, image);
-
-      socket.room = room;
-      socket.uid = uid;
-      socket.game = await db.queryGame(room);
-
-      if (await db.checkFull(room)) {
-        start(room);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  });
-
-  /**
-   * Begins dealing the initial cards to each player corresponding
-   * to the type of the game. Cards are dealt in 1 second intervals.
+   * Begins the game by creating a new instance of Game and then
+   * getting the player bets
    * @param {*} room - The room the socket is part of
    */
   const start = async (room) => {
@@ -99,6 +143,10 @@ io.on("connection", (socket) => {
     getBets(room);
   };
 
+  /**
+   * Generates a bet timer for each socket in the room
+   * @param {*} room - The room the socket is part of
+   */
   const getBets = async (room) => {
     timers[room] = {};
     const sockets = await io.in(room).fetchSockets();
@@ -108,6 +156,10 @@ io.on("connection", (socket) => {
     }
   };
 
+  /**
+   * A timer for player bets which is emitted every second
+   * @param {*} client - The socket to emit the timer to
+   */
   const betTimer = async (client) => {
     let seconds = 20;
 
@@ -121,25 +173,10 @@ io.on("connection", (socket) => {
     }, 1000);
   };
 
-  socket.on("player-bet", (bet) => {
-    const game = getGame(socket.room);
-    try {
-      game.getPlayer(socket.uid).setBet(bet);
-
-      clearInterval(timers[socket.room][socket.id]);
-      delete timers[socket.room][socket.id];
-      io.to(socket.room).emit("update-hands", game.displayPlayers());
-
-      startGame(socket.room);
-    } catch (e) {
-      console.log(e);
-    }
-  });
-
   /**
-   * Asks the room's game object who's turn it is and emits
-   * the appropriate information to each player depending
-   * on what the game returns.
+   * Represents a single turn. Checks if the game is in progress, and
+   * if so finds whose turn it is and emits it to the room. If not in
+   * progress, calls method for handling the end of the game
    * @param {*} room - The room the socket is part of
    */
   const turn = async (room) => {
@@ -161,6 +198,11 @@ io.on("connection", (socket) => {
     }
   };
 
+  /**
+   * Starts the game by dealing out the initial cards and
+   * starting the first turn
+   * @param {*} room - The room the socket is part of
+   */
   const startGame = (room) => {
     if (Object.keys(timers[room]).length === 0) {
       getGame(room).initialDeal();
@@ -169,10 +211,9 @@ io.on("connection", (socket) => {
   };
 
   /**
-   * Creates a countdown timer for 20 seconds. This is used to keep
+   * Creates a countdown timer for 20 seconds. Keeps
    * track of how much time a user has left on a specific turn.
    * @param {*} room - The room the socket is part of
-   * @param {*} game - The game instance of the current room
    * @returns
    */
   const turnTimer = async (room) => {
@@ -190,33 +231,8 @@ io.on("connection", (socket) => {
   };
 
   /**
-   * Takes the choice from a player's move, sets it to the
-   * gameChoice variable, and then ends the player's turn.
-   */
-  socket.on("player-move", async (choice) => {
-    try {
-      clearInterval(timers[socket.room]);
-      if (getGame(socket.room)) {
-        await getGame(socket.room).makeMove(choice);
-        turn(socket.room);
-      }
-    } catch (e) {
-      console.log(e);
-    }
-  });
-
-  /**
-   * Gets a chat that was sent from some player and sends it to all the other
-   *  players in that game
-   */
-  socket.on("send-message", async (msg) => {
-    socket.broadcast.to(socket.room).emit("chat-message", msg);
-  });
-
-  /**
-   * Creates a countdown timer for each socket in the room and
-   * updates the room status to 'waiting' if at least one user decides
-   * not to play again.
+   * Finds the winners of the game, emits it to the room, and
+   * then starts a new game by asking for players bets.
    * @param {*} room - The room the socket is part of
    */
   const handleGameEnd = async (room) => {
@@ -236,10 +252,20 @@ io.on("connection", (socket) => {
     getBets(room);
   };
 
+  /**
+   * Gets the room from a room name
+   * @param {*} room - The room name
+   * @returns
+   */
   const getRoom = (room) => {
     return io.sockets.adapter.rooms.get(room);
   };
 
+  /**
+   * Gets the game in a room from the room name
+   * @param {*} room - The room name
+   * @returns
+   */
   const getGame = (room) => {
     if (getRoom(room)) {
       return getRoom(room).game;

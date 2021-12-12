@@ -2,25 +2,34 @@
  * For creating a card simulated in the card games
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 12/12/2021
  */
 
 let ranks = require("./Ranks");
 
-/**
- * Represents a single card in a deck.
- */
 class Card {
+  /**
+   * Represents a single card in a deck
+   * @constructor
+   */
   constructor(suit, rank) {
     this.suit = suit;
     this.rank = rank;
     this.value = ranks[rank];
   }
 
+  /**
+   * Gets the equivalent value of a rank
+   * @returns - The card's value
+   */
   getValue() {
     return this.value;
   }
 
+  /**
+   * Gets the rank of the card
+   * @returns - The card's rank
+   */
   getRank() {
     return this.rank;
   }

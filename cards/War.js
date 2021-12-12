@@ -1,8 +1,8 @@
 /**
- *Creates and manages a game of War
+ * Creates and manages a game of War
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 12/12/2021
  */
 
 const { cloneDeep } = require("lodash");
@@ -10,6 +10,10 @@ const Card = require("./Card");
 const Game = require("./Game");
 
 class War extends Game {
+  /**
+   * Represents the logic for a game of war
+   * @constructor
+   */
   constructor(io, room, players, bank) {
     super(io, room, players, bank);
     this.turnIndex = 0;
@@ -19,10 +23,7 @@ class War extends Game {
   }
 
   /**
-   * The initial dealing of the cards. Deals one card at a time.
-   * @param {*} players - The players that are part of the game
-   * @returns - The player that was dealt to and the card that was
-   * drawn from the deck
+   * The initial dealing of the cards
    */
   initialDeal() {
     for (let i = 0; i < Math.floor(52 / this.players.length); i++) {
@@ -32,6 +33,10 @@ class War extends Game {
     }
   }
 
+  /**
+   * Increments the turnIndex and returns whose turn it is next
+   * @returns - The player whose turn it is
+   */
   nextTurn() {
     while (
       !this.players[this.turnIndex] ||
@@ -52,15 +57,17 @@ class War extends Game {
     return this.turn;
   }
 
+  /**
+   * Resets a round by setting the turnIndex back to 0
+   */
   resetRound() {
     this.roundEnded = true;
     this.turnIndex = 0;
   }
 
   /**
-   * Finds if all the players of this game have made a move
-   * @param {any} players the list of players in the game
-   * @returns true if all plays have moved this turn, false otherwise
+   * Finds if all the players of this round have made a move
+   * @returns true if all players have moved this round, false otherwise
    */
   allPlayersMoved() {
     if (this.roundEnded) {
@@ -92,6 +99,10 @@ class War extends Game {
     }
   }
 
+  /**
+   * Handles a round ending by finding the winning players,
+   * clearing the cards, and emitting the results
+   */
   async handleRound() {
     let winners = this.findWinningPlayers();
     if (winners.length > 1) {
@@ -113,7 +124,6 @@ class War extends Game {
   /**
    * Searches for users who haven't busted and have the highest card total
    * of all users. In the event of a tie, multiple users can be returned
-   * @param {*} players - The players currently part of the game
    * @returns - The players who won
    */
   findWinningPlayers() {
@@ -125,6 +135,11 @@ class War extends Game {
     return players.filter((player) => this.getTotal(player) === highest);
   }
 
+  /**
+   * Gets the actual value of a players hand
+   * @param {*} player - The player having their hand total checked
+   * @returns - The player's actual hand value
+   */
   getTotal(player) {
     const topCard = player.getCards()[player.getCards().length - 1];
     switch (topCard.getRank()) {
@@ -142,8 +157,9 @@ class War extends Game {
   }
 
   /**
-   * Has each of the players that are in a tie flip over a card if they have another one
-   * @param {*} players the players of this War game
+   * Finds the winner of war between tied players and recursively calls
+   * itself if there is more than 1 winner.
+   * @param {*} tiedPlayers - The players who are at war
    */
   async handleWar(tiedPlayers) {
     let winningPlayers;
@@ -167,10 +183,18 @@ class War extends Game {
     return winningPlayers;
   }
 
+  /**
+   * The default move made if a player does not make a choice
+   */
   defaultMove() {
     this.makeMove("draw");
   }
 
+  /**
+   * Formats the players for being displayed to the client side.
+   * Hides the player's cards if necessary
+   * @returns - The formatted players
+   */
   displayPlayers() {
     let players = cloneDeep(this.players);
     for (const player of players) {
@@ -185,6 +209,11 @@ class War extends Game {
     return players;
   }
 
+  /**
+   * Determines if the game still in progress
+   * @returns - true if there is more than 1 player with
+   * a "playing" status
+   */
   inProgress() {
     let activePlayers = this.players.filter(
       (player) => player.getStatus() == "playing"
@@ -192,6 +221,11 @@ class War extends Game {
     return activePlayers.length > 1;
   }
 
+  /**
+   * Searches for a user who still has a "playing" status and
+   * updates their bank
+   * @returns - The players or dealer who won
+   */
   getResults() {
     const prompt = "👑 Winners 👑";
     let winner = this.players.find((player) => player.getStatus() == "playing");
@@ -199,6 +233,9 @@ class War extends Game {
     return { prompt, winners: [winner] };
   }
 
+  /**
+   * Resets the game so it can be played from the start again
+   */
   resetGame() {
     super.resetGame();
     this.turn = null;

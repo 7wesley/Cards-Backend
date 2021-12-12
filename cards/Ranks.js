@@ -2,7 +2,7 @@
  * Represents all the ranks a card could be.
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 12/12/2021
  */
 const ranks = {
   A: 11,

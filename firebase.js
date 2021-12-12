@@ -1,8 +1,8 @@
 /**
- * For creating the query in firebase
+ * Firebase initialization
  * @author Nathan Jenkins
  * @author Wesley Miller
- * @version 5/13/2021
+ * @version 12/12/2021
  */
 const firebase = require("firebase");
 require("dotenv").config();
